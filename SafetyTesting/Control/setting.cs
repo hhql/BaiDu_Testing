@@ -28,7 +28,7 @@ namespace SafetyTesting.Control
         bool IsENTERSET = false;
         bool IsButtonMain = true;
         public static WebSocket webSocket4Net = null;
-        string MESAddress="";//MES 地址
+        public static string MESAddress="";//MES 地址
         string CurrentStation = "";//当前工位
         public setting()
         {
@@ -486,7 +486,14 @@ namespace SafetyTesting.Control
                     {
                         args["VIN"] = testingData.Vin;
                         args["CAR_MODEL"] = testingData.carModuleCode;
-                        args["DEVICE_ID"] = CurrentStation;
+                        if (CurrentStation.Contains("淋雨后"))
+                        {
+                            args["DEVICE_ID"] = "2";
+                        }
+                        else 
+                        {
+                            args["DEVICE_ID"] = "3";
+                        }
                         args["create_date"] = testingData.CreateTime;
                         if (testingData.result == "不合格")
                         {
@@ -657,7 +664,7 @@ namespace SafetyTesting.Control
 
         }
 
-        public StringBuilder GetXMLStringBuilder(Dictionary<string, string> args) 
+        public static StringBuilder GetXMLStringBuilder(Dictionary<string, string> args) 
         {
             StringBuilder soap = new StringBuilder();
             // soap.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");

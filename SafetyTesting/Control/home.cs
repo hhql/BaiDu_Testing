@@ -8,9 +8,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Management;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -1215,6 +1217,8 @@ namespace SafetyTesting.Control
                 });
                 List<listsen> listsens = new List<listsen>();
                 bool isPass = true;
+                List<db_TestingData> db_Testings = new List<db_TestingData>();
+                
                 foreach (DataGridViewRow viewRow in dataGridView1.Rows)
                 {
                     if (bool.Parse(viewRow.Cells[6].Value.ToString()))
@@ -1266,6 +1270,8 @@ namespace SafetyTesting.Control
                         TestingData.StationName = CurrentStation;
                         TestingData.IsUpload = "否";
                         safetyDataRepository.Insert(TestingData);
+
+                        db_Testings.Add(TestingData);
                         if (viewRow.Cells[5].Value.ToString().Contains("不合格"))
                         {
                             isPass = false;
@@ -1319,6 +1325,13 @@ namespace SafetyTesting.Control
 
                 label_Message.Text = "检测结束,请驶离工位";
                 label_Message.ForeColor = Color.Lime;
+
+                Thread.Sleep(1000);
+                //上传 淋雨后
+
+                
+                MesUpload(db_Testings);
+
             }
             catch (Exception ex)
             {
@@ -1327,7 +1340,200 @@ namespace SafetyTesting.Control
             
 
         }
+        public void MesUpload(List<db_TestingData> db_TestingData) 
+        {
+            #region 上传数据
+            Dictionary<string, string> args = new Dictionary<string, string>(); //方法的参数
+            bool IsOK = true;
+            string DDWVal = "?";
+            string DCBDDWZ = "?";
+            string SHYDDWZ = "?";
+            string DQDDDWZ = "?";
+            string YSJDDWZ = "?";
+            string PTCDDWZ = "?";
+            string JLCDQDDWZ = "?";
+            string ZLCDQDDWZ = "?";
+            string KMCJYBZ = "?";
+            string KCJYZ = "?";
+            string MCJYZ = "?";
+            string Kcjyzz = "?";
+            string ZCJY1BZ = "?";
+            string ZCJY1Z = "?";
+            string BAK2 = "?";
+            string Kcjyzf = "?";
+            foreach (db_TestingData testingData in db_TestingData)
+            {
+                args["VIN"] = testingData.Vin;
+                args["CAR_MODEL"] = testingData.carModuleCode;
+                if (CurrentStation.Contains("淋雨后"))
+                {
+                    args["DEVICE_ID"] = "2";
+                }
+                else
+                {
+                    args["DEVICE_ID"] = "3";
+                }
+                args["create_date"] = testingData.CreateTime;
+                if (testingData.result == "不合格")
+                {
+                    IsOK = false;
+                }
+                if (testingData.TestingName.Contains("等电位"))
+                {
+                    DDWVal = testingData.Range;//等电位标准
+                }
 
+                if (testingData.TestingName.Contains("动力电池"))
+                {
+                    DCBDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("三合一"))
+                {
+                    SHYDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("驱动"))
+                {
+                    DQDDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("压缩机"))
+                {
+                    YSJDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("PTC"))
+                {
+                    PTCDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("PTC"))
+                {
+                    PTCDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("交流充电枪等电位"))
+                {
+                    JLCDQDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("直流充电枪等电位"))
+                {
+                    ZLCDQDDWZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("直流充电口正极绝缘"))
+                {
+                    KMCJYBZ = testingData.Range;
+                    Kcjyzz = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("快充绝缘"))
+                {
+                    KCJYZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("慢充绝缘"))
+                {
+                    MCJYZ = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("整车绝缘"))
+                {
+                    ZCJY1BZ = testingData.Range;
+                    ZCJY1Z = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("HPIU"))
+                {
+                    BAK2 = testingData.value;
+                }
+                else if (testingData.TestingName.Contains("直流充电口负绝缘"))
+                {
+                    Kcjyzf = testingData.value;
+                }
+            }
+            args["CAR_STATUS"] = IsOK ? "OK" : "NG";//是否合格
+            args["DDWBZ"] = DDWVal;//等电位标准
+            args["DCBDDWZ"] = DCBDDWZ;
+            args["SHYDDWZ"] = SHYDDWZ;
+            args["DQDDDWZ"] = DQDDDWZ;
+            args["YSJDDWZ"] = YSJDDWZ;
+            args["PTCDDWZ"] = PTCDDWZ;
+            args["JLCDQDDWZ"] = JLCDQDDWZ;
+            args["ZLCDQDDWZ"] = ZLCDQDDWZ;
+            args["KMCJYBZ"] = KMCJYBZ;
+            args["KCJYZ"] = KCJYZ;
+            args["MCJYZ"] = MCJYZ;
+            args["ZCJY1BZ"] = ZCJY1BZ;
+            args["ZCJY1Z"] = ZCJY1Z;
+            args["ZCJY2Z"] = "?";
+            args["BAK1"] = "?";
+            args["BAK2"] = BAK2;
+            args["BAK3"] = "?";
+            args["BAK4"] = "?";
+            args["BAK5"] = "?";
+            args["GYX"] = "?";
+            args["DJKZQ1"] = "?";
+
+            args["DJ"] = "?";
+            args["JSQ"] = "?";
+            args["GYYTJ"] = "?";
+            args["Kcjyzz"] = Kcjyzz;
+            args["Kcjyzf"] = Kcjyzf;
+            args["mcjyzz"] = "?";
+            args["mcjyzf"] = "?";
+            args["Zcjy1zz"] = "?";
+            args["Zcjy1zf"] = "?";
+            args["Zcjy2zz"] = "?";
+            args["Zcjy2zf"] = "?";
+            #endregion
+
+
+            StringBuilder sb = setting.GetXMLStringBuilder(args);
+
+            //XmlDocument doc = new XmlDocument();
+            //doc.LoadXml();
+
+            // LogHelper.Info("上传数据：" + sb.ToString());
+            string _returnstr = "";
+
+
+            //发起请求
+            WebRequest webRequest = WebRequest.Create(setting.MESAddress);
+            webRequest.ContentType = "text/xml; charset=utf-8";
+            webRequest.Method = "POST";
+            using (Stream requestStream = webRequest.GetRequestStream())
+            {
+                byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
+                requestStream.Write(paramBytes, 0, paramBytes.Length);
+            }
+            //响应
+            try
+            {
+                WebResponse webResponse = webRequest.GetResponse();
+                using (StreamReader myStreamReader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+                {
+                    _returnstr = myStreamReader.ReadToEnd();
+                }
+            }
+            catch (WebException ex)
+            {
+                _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
+            }
+            
+            if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
+            {
+                foreach (db_TestingData data in db_TestingData)
+                {
+                    data.IsUpload = "是";
+                    safetyDataRepository.Update<db_TestingData>(data);
+                }
+
+                label_Message.Text = "数据上传MES成功";
+                label_Message.ForeColor = Color.Lime;
+            }
+            else
+            {
+                foreach (db_TestingData data in db_TestingData)
+                {
+                    data.IsUpload = "否";
+                    safetyDataRepository.Update<db_TestingData>(data);
+                }
+
+                label_Message.Text = "数据上传MES失败";
+                label_Message.ForeColor = Color.Lime;
+            }
+        }
 
         int ErrCount = 0;//错误次数
         public void LearningResult(string data, int num)
