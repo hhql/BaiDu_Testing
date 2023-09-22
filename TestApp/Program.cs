@@ -186,10 +186,6 @@ namespace TestApp
 
         }
 
-        static void WEBserviceDome() 
-        {
-            CoreCallWebServiceTest
-        }
         public static uint  canculate_app_security_access_xxx(uint seed)
         {
 

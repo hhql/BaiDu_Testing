@@ -65,7 +65,6 @@
             this.checkBox_IsPrint = new System.Windows.Forms.CheckBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label_MES = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
@@ -450,7 +449,7 @@
             // 
             // timer1
             // 
-            this.timer1.Interval = 12000;
+            this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // label_MES
@@ -464,22 +463,11 @@
             this.label_MES.TabIndex = 44;
             this.label_MES.Text = "********";
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(1253, 392);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 45;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
-            // 
             // setting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(26)))), ((int)(((byte)(67)))));
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.label_MES);
             this.Controls.Add(this.checkBox_IsPrint);
             this.Controls.Add(this.panel_userSetting);
@@ -551,6 +539,5 @@
         private System.Windows.Forms.CheckBox checkBox_IsPrint;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label_MES;
-        private System.Windows.Forms.Button button1;
     }
 }

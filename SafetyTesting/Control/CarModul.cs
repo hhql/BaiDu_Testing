@@ -29,11 +29,11 @@ namespace SafetyTesting.Control
 
             if (home.LocadTitle() == "返修工位" || home.LocadTitle().Contains("整车"))
             {
-                panel3.Visible = true;
+               // panel3.Visible = true;
             }
             else
             {
-                panel3.Visible = false;
+              //  panel3.Visible = false;
             }
 
             if (home.LocadTitle()== "充电检测")
@@ -42,7 +42,7 @@ namespace SafetyTesting.Control
                 ((DataGridViewComboBoxColumn)dataGridView_carModul.Columns[4]).Items.Add("直流口");
                 ((DataGridViewComboBoxColumn)dataGridView_carModul.Columns[4]).Items.Add("交流口");
 
-                panel3.Visible = false;
+               // panel3.Visible = false;
             }
             else
             {

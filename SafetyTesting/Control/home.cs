@@ -1,6 +1,7 @@
 ﻿using SafetyTesting.DB.Entity;
 using SafetyTesting.DB.Interface;
 using SafetyTesting.Tool;
+using SpeechLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -206,13 +207,21 @@ namespace SafetyTesting.Control
             
             try
             {
+                Task.Run(() =>
+                {
+                    SpVoice voice = new SpVoice();
+                    voice.SetRate(2);//语速
+                    voice.SetVolume(100);//音量
+                    uint lll = 0;
+                    voice.Speak("安规软件已启动", 0, out lll);
+                });
                
 
 
                 #region 柱状图数据
 
-                //柱状图
-                DateTime dateTime = Convert.ToDateTime(DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd"));
+                 //柱状图
+                 DateTime dateTime = Convert.ToDateTime(DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd"));
                 List<db_TestingData> db_TestingDatas = safetyDataRepository.GetData<db_TestingData>().Where(x => Convert.ToDateTime(x.CreateTime) > dateTime).ToList();
                 //int adsf= db_TestingDatas.Where(x => Convert.ToDateTime(x.CreateTime) > Convert.ToDateTime("2023/3/13 00:00:00")).Count();
 
@@ -277,6 +286,8 @@ namespace SafetyTesting.Control
 
 
                 #endregion
+
+
 
 
                 PassNumber();
@@ -573,6 +584,9 @@ namespace SafetyTesting.Control
         CarModuleType carModuleType = CarModuleType.D180;
         public void AN1622HQuickMode() 
         {
+            Device.OutputDO(lmlDO, false);
+            Thread.Sleep(50);
+            Device.OutputDO(lmlDO, false);
             db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
             
             if (db_Car == null)
@@ -943,6 +957,15 @@ namespace SafetyTesting.Control
                         if (db_Car.TestName!="整车绝缘")
                         {
                             //AN1622HQuickMode();
+
+                            Task.Run(() =>
+                            {
+                                SpVoice voice = new SpVoice();
+                                voice.SetRate(1);//语速
+                                voice.SetVolume(100);//音量
+                                uint lll = 0;
+                                voice.Speak($"请重新测试", 0, out lll);
+                            });
                             TestingNG = 2;
                             return;
                         }
@@ -952,9 +975,11 @@ namespace SafetyTesting.Control
                     {
                         TestingNG = 1;
                     }
+                    IsOk = false;
                 }
                 else
                 {
+                    IsOk = true;
                     TestingNG = 1;
                 }
 
@@ -969,6 +994,7 @@ namespace SafetyTesting.Control
         }
 
         int TestingNG=1;
+        bool IsOk=false;
         public static void Delay(int mm)
         {
             DateTime current = DateTime.Now;
@@ -1011,7 +1037,47 @@ namespace SafetyTesting.Control
                 }
 
                 db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
-              
+
+                if (IsOk)
+                {
+                    Task.Run(() =>
+                    {
+                        SpVoice voice = new SpVoice();
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        uint lll = 0;
+                        voice.Speak($"合格", 0, out lll);
+
+
+                        Thread.Sleep(300);
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        voice.Speak($"请进行{db_Car.TestName}检测", 0, out lll);
+                    });
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        SpVoice voice = new SpVoice();
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        uint lll = 0;
+                        voice.Speak($"不合格", 0, out lll);
+
+
+                        Thread.Sleep(300);
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        voice.Speak($"请进行{db_Car.TestName}检测", 0, out lll);
+
+
+                    });
+                }
+
+                
+
+
                 IsENDTest = false;
                 if (db_Car.TestName.Contains("绝缘") || db_Car.TestName.Contains("直流口") || db_Car.TestName.Contains("交流口") || db_Car.TestName.Contains("直流充电口") || db_Car.TestName.Contains("交流充电口"))//
                 {
@@ -1099,6 +1165,7 @@ namespace SafetyTesting.Control
         {
             try
             {
+                
                 LogHelper.Info("---------------检测结束-----------------------");
                 byte addressID = 0x01;
                 timer1.Enabled = false;
@@ -1138,7 +1205,14 @@ namespace SafetyTesting.Control
                     timer_anguiConn.Enabled = true;
                 }
 
-
+                Task.Run(() =>
+                {
+                    SpVoice voice = new SpVoice();
+                    voice.SetRate(1);//语速
+                    voice.SetVolume(100);//音量
+                    uint lll = 0;
+                    voice.Speak($"检测结束  请驶离工位", 0, out lll);
+                });
                 List<listsen> listsens = new List<listsen>();
                 bool isPass = true;
                 foreach (DataGridViewRow viewRow in dataGridView1.Rows)
@@ -1330,10 +1404,23 @@ namespace SafetyTesting.Control
                 }
                 else if (data.Contains("ECU通讯超时"))
                 {
-                    textBox_vin.Enabled = true;
-                    button1.Enabled = true;
+                    ErrCount ++;
+                    if (ErrCount>1)
+                    {
+                        return;
+                    }
                     label_Message.Text = "通讯超时,请重新扫码检测";
                     label_Message.BackColor = Color.Red;
+                    dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
+                    dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
+                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
+
+                    Progressdisplay(250, RowIndex);
+                    IsOk = false;
+
+                    TestEnd();
+
+                    //下一项检测
                 }
                 else if (data.Contains("完成闭合快充继电器"))
                 {
@@ -1483,6 +1570,7 @@ namespace SafetyTesting.Control
         {
             try
             {
+                ErrCount = 0;
                 if (Global.IsStop)
                 {
                     return;
@@ -1897,6 +1985,17 @@ namespace SafetyTesting.Control
 
                     }
 
+
+                    db_CarModule db_Caraaa = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
+
+                    Task.Run(() =>
+                    {
+                        SpVoice voice = new SpVoice();
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        uint lll = 0;
+                        voice.Speak($"请进行{db_Caraaa.TestName}检测", 0, out lll);
+                    });
                 }
                 else
                 {
@@ -1988,7 +2087,10 @@ namespace SafetyTesting.Control
             timer1.Stop();
             textBox_vin.Enabled = true;
             button1.Enabled = true;
-
+            TestingNG = 1;
+            Device.OutputDO(lmlDO, false);
+            Thread.Sleep(50);
+            Device.OutputDO(lmlDO, false);
             label_Message.Text = "";
             RowIndex = 0;
 

@@ -429,6 +429,7 @@ namespace SafetyTesting.Control
         /// </summary>
         public void StartCAN(EFunctionType type,CarModuleType cartype= CarModuleType.D180,bool auto=true)
         {
+          //  ProcessTimeOutTimer.Enabled = true;
             IsAuto = auto;
             IsEnd = false;
             status = type;
@@ -436,7 +437,7 @@ namespace SafetyTesting.Control
             SendData = ENTER_EXTENDED;
             Isextend = false;
             IsError = true;
-
+            OBDWatchingTimer.Enabled = true;
             if (cartype==CarModuleType.RT6)
             {
                 SendCommand(SendData, "720");
@@ -449,7 +450,7 @@ namespace SafetyTesting.Control
             
 
             learningResultAction("请求进入扩展模式", 0);
-            OBDWatchingTimer.Enabled = true;
+            
         }
 
         public void Sendcomm( EFunctionType type,CarModuleType carModuleType)
@@ -476,6 +477,7 @@ namespace SafetyTesting.Control
         /// <param name="sendframe">0：CAN  1：CANFD</param>
         public void SendCommand(string strData, string SendId)
         {
+            
 
             uint id = (uint)System.Convert.ToInt32(SendId, 16);
             string data = strData;
@@ -536,6 +538,9 @@ namespace SafetyTesting.Control
             {
                 //MessageBox.Show("发送数据失败", "提示", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 LogHelper.CANInfo("发送数据失败： "+ strData);
+                learningResultAction("错误，和ECU通讯超时。", 2);
+
+                CloseCAN();
             }
             else
             {
@@ -661,7 +666,7 @@ namespace SafetyTesting.Control
                 // OBDWatchingTimer.Enabled = false;
 
                 message = "进入扩展会话...";
-                ProcessTimeOutTimer.Enabled = true;
+                
                 //1, Request seed
 
                 

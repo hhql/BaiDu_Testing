@@ -294,6 +294,7 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(172, 96);
             this.panel3.TabIndex = 4;
+            this.panel3.Visible = false;
             // 
             // comboBox1
             // 
