@@ -1,0 +1,3 @@
+控制BMS绝缘检测功能：Routine DID,0×A201
+
+控制VCU快充接触器功能：IO DID 

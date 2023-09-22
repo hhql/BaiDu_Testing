@@ -1,0 +1,4 @@
+定时发送功能：仅USBCAN-2E-U、USBCAN-4E-U、USBCAN-8E-U以及CANFD全系列的卡支持。
+队列发送功能：仅CANFD全系列的卡支持。
+合并接收功能：USBCANFD系列、PCIECANFD系列（PCIECANFD-200U不支持）、CANFDNET系列、
+                        CANFDWIFI系列、CANFDDTU系列
