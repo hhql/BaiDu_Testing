@@ -139,7 +139,7 @@ namespace SafetyTesting.Control
             dt.Columns.Add("TestName", typeof(string));
             dt.Columns.Add("Range", typeof(string));
             dt.Columns.Add("pass", typeof(string));
-
+            dt.Columns.Add("id", typeof(string));
 
 
 
@@ -155,6 +155,7 @@ namespace SafetyTesting.Control
                 //((DataGridViewComboBoxColumn)dataRow["pass"]).Items.Add(item.Pass);
 
                 dataRow["pass"] = item.Pass;
+                dataRow["id"] = item.Id;
                 dt.Rows.Add(dataRow);
             }
 
@@ -180,10 +181,10 @@ namespace SafetyTesting.Control
                     string TestName = viewrows.Cells[2].Value.ToString();
                     string Range = viewrows.Cells[3].Value.ToString();
                     string pass = viewrows.Cells[4].Value.ToString();
-
+                    string id = viewrows.Cells[5].Value.ToString();
                     if (code != ""  && TestName != "" && Range != "" && pass != "") 
                     {
-                        db_CarModule db_Car = safetyDataRepository.GetData<db_CarModule>().Where(x =>x.CarModuleName== carModuleCode &&  x.Code == code).FirstOrDefault();
+                        db_CarModule db_Car = safetyDataRepository.GetData<db_CarModule>().Where(x =>x.Id.ToString()== id).FirstOrDefault();
                         if (db_Car != null)
                         {
                             //更新数据
@@ -242,7 +243,7 @@ namespace SafetyTesting.Control
                             CarModuleName = carModuleCode,
                             Vin = code
                         };
-                        //db_CarVinCode db_Car = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.Vin == code).FirstOrDefault();
+                        
                         //if (db_Car != null)
                         //{
                         //    db_Car.Vin = code;
@@ -254,7 +255,32 @@ namespace SafetyTesting.Control
                         //    safetyDataRepository.Insert(db_CarVin);
                         //}
 
-                        safetyDataRepository.Insert(db_CarVin);
+
+                        db_CarVinCode db_Car = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == name).FirstOrDefault();
+                        if (db_Car!=null)
+                        {
+
+                            safetyDataRepository.Insert(db_CarVin);
+                            
+                        }
+
+
+
+                        db_CarVinCode db_Car1 = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == carModuleCode).FirstOrDefault();
+                        if (db_Car1 != null)
+                        {
+                            List<db_CarModule> db_Carmodule = safetyDataRepository.GetData<db_CarModule>().Where(x => x.CarModuleName == name).ToList();
+                            foreach (db_CarModule item in db_Carmodule)
+                            {
+                                item.CarModuleName = carModuleCode;
+                            }
+
+                            safetyDataRepository.Inserts(db_Carmodule);
+                        }
+
+
+
+
                         //textBox_vin.Text = code;
                         GetCarVin("");
                     }
@@ -307,10 +333,15 @@ namespace SafetyTesting.Control
                 GetCarModul(carmodul);
                 GetCarNameF(carmodul);
             }
+
+            name = carmodul;
         }
 
-        string carmoduleName=string.Empty;
-        string vinName=string.Empty;
+
+        string name = string.Empty;
+
+        string id=string.Empty;
+        string CarName=string.Empty;
         private void dataGridView_carModul_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -321,8 +352,8 @@ namespace SafetyTesting.Control
                     dataGridView_carModul.Rows[e.RowIndex].Selected = true;
                     dataGridView_carModul.CurrentCell = dataGridView_carModul.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     contextMenuStrip_car.Show(MousePosition.X, MousePosition.Y);
-                    vinName = "";
-                    carmoduleName = dataGridView_carModul.Rows[dataGridView_carModul.CurrentRow.Index].Cells[2].Value == null ? "":dataGridView_carModul.Rows[dataGridView_carModul.CurrentRow.Index].Cells[2].Value.ToString();
+                    CarName = "";
+                    id = dataGridView_carModul.Rows[dataGridView_carModul.CurrentRow.Index].Cells[5].Value == null ? "":dataGridView_carModul.Rows[dataGridView_carModul.CurrentRow.Index].Cells[5].Value.ToString();
                 }
             }
         }
@@ -338,8 +369,8 @@ namespace SafetyTesting.Control
                     dataGridView1.Rows[e.RowIndex].Selected = true;
                     dataGridView1.CurrentCell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     contextMenuStrip_car.Show(MousePosition.X, MousePosition.Y);
-                    carmoduleName = "";
-                    vinName = dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[0].Value == null ? "" : dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[0].Value.ToString();
+                    id = "";
+                    CarName = dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[1].Value == null ? "" : dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[1].Value.ToString();
 
                 }
             }
@@ -347,16 +378,16 @@ namespace SafetyTesting.Control
 
         private void 删除ToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            if (vinName != "")
+            if (CarName != "")
             {
-                db_CarVinCode _CarModule = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.Vin == vinName).FirstOrDefault();
+                db_CarVinCode _CarModule = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == CarName).FirstOrDefault();
                 if (_CarModule != null)
                 {
                     safetyDataRepository.Delete(_CarModule);
                 }
-                vinName = "";
+                CarName = "";
                 List<db_CarVinCode> _CarModulees = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == _CarModule.CarModuleName).ToList();
-                if (_CarModulees.Count==0)
+                if (_CarModulees.Count == 0)
                 {
                     List<db_CarModule> _CarModules = safetyDataRepository.GetData<db_CarModule>().Where(x => x.CarModuleName == _CarModule.CarModuleName).ToList();
                     foreach (db_CarModule item in _CarModules)
@@ -365,18 +396,18 @@ namespace SafetyTesting.Control
                         safetyDataRepository.Delete(item);
                     }
                 }
-               
+
                 GetCarVin("");
             }
-            else if (carmoduleName != "")
+            else if (id != "")
             {
-                    db_CarModule _CarModule = safetyDataRepository.GetData<db_CarModule>().Where(x => x.TestName == carmoduleName).FirstOrDefault();
+                    db_CarModule _CarModule = safetyDataRepository.GetData<db_CarModule>().Where(x => x.Id.ToString() == id).FirstOrDefault();
                     if (_CarModule != null)
                     {
                         safetyDataRepository.Delete(_CarModule);
                     }
                     GetCarModul(carModuleCode);
-                carmoduleName = "";
+                id = "";
 
             }
         }

@@ -13,6 +13,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Management;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -539,7 +540,7 @@ namespace SafetyTesting.Control
                    // LogHelper.Info("IsSettingComm：" + Global.IsSettingComm);
                     if (!Global.IsSettingComm)
                     {
-                        if (CurrentStation== "整车安规检测工位")
+                        if (CurrentStation== "整车安规检测工位-最终线" || CurrentStation == "整车安规检测工位-淋雨线")
                         {
                             Invoke(new EventHandler(delegate
                             {
@@ -586,6 +587,7 @@ namespace SafetyTesting.Control
         CarModuleType carModuleType = CarModuleType.D180;
         public void AN1622HQuickMode() 
         {
+            Thread.Sleep(1000);
             Device.OutputDO(lmlDO, false);
             Thread.Sleep(50);
             Device.OutputDO(lmlDO, false);
@@ -750,9 +752,23 @@ namespace SafetyTesting.Control
                     return;
                 }
                 LogHelper.Info("安规回复数据：" + data);
-              //  LogHelper.Info("当前RowIndex" + RowIndex);
-                Thread.Sleep(50);
-                Device.OutputDO(lmlDO, false);
+                //  LogHelper.Info("当前RowIndex" + RowIndex);
+
+
+                Task.Run(() =>
+                {
+                    Device.OutputDO(GreenDo, true);
+                    Thread.Sleep(80);
+                    Device.OutputDO(GreenDo, true);
+                    Thread.Sleep(80);
+                    Device.OutputDO(redDo, false);
+                    Thread.Sleep(80);
+                    Device.OutputDO(redDo, false);
+                    Thread.Sleep(80);
+                    Device.OutputDO(yellowDo, false);
+                    Thread.Sleep(80);
+                    Device.OutputDO(yellowDo, false);
+                });
                 string[] strs = data.Split(",");
 
 
@@ -872,13 +888,13 @@ namespace SafetyTesting.Control
                 LogHelper.Info("检测结果为：" + str);
                 Progressdisplay(250, RowIndex);
                 
-                Device.OutputDO(lmlDO, true);
-                Thread.Sleep(50);
-                Device.OutputDO(lmlDO, true);
-                Thread.Sleep(80);
-                Device.OutputDO(lmlDO, false);
-                Thread.Sleep(50);
-                Device.OutputDO(lmlDO, false);
+                //Device.OutputDO(lmlDO, true);
+                //Thread.Sleep(50);
+                //Device.OutputDO(lmlDO, true);
+                //Thread.Sleep(80);
+                //Device.OutputDO(lmlDO, false);
+                //Thread.Sleep(50);
+                //Device.OutputDO(lmlDO, false);
 
 
                 //检测完成
@@ -947,8 +963,8 @@ namespace SafetyTesting.Control
 
                 if (dataGridView1.Rows[RowIndex].Cells[5].Value == "不合格")
                 {
-                    Thread.Sleep(50);
-                    Device.OutputDO(lmlDO, true);
+                   // Thread.Sleep(50);
+                   // Device.OutputDO(lmlDO, true);
 
                    
 
@@ -968,6 +984,7 @@ namespace SafetyTesting.Control
                                 uint lll = 0;
                                 voice.Speak($"请重新测试", 0, out lll);
                             });
+                            button1.Enabled = true;
                             TestingNG = 2;
                             return;
                         }
@@ -1040,53 +1057,16 @@ namespace SafetyTesting.Control
 
                 db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
 
-                if (IsOk)
-                {
-                    Task.Run(() =>
-                    {
-                        SpVoice voice = new SpVoice();
-                        voice.SetRate(1);//语速
-                        voice.SetVolume(100);//音量
-                        uint lll = 0;
-                        voice.Speak($"合格", 0, out lll);
-
-
-                        Thread.Sleep(300);
-                        voice.SetRate(1);//语速
-                        voice.SetVolume(100);//音量
-                        voice.Speak($"请进行{db_Car.TestName}检测", 0, out lll);
-                    });
-                }
-                else
-                {
-                    Task.Run(() =>
-                    {
-                        SpVoice voice = new SpVoice();
-                        voice.SetRate(1);//语速
-                        voice.SetVolume(100);//音量
-                        uint lll = 0;
-                        voice.Speak($"不合格", 0, out lll);
-
-
-                        Thread.Sleep(300);
-                        voice.SetRate(1);//语速
-                        voice.SetVolume(100);//音量
-                        voice.Speak($"请进行{db_Car.TestName}检测", 0, out lll);
-
-
-                    });
-                }
-
+                string mesageeData = string.Empty;
                 
-
 
                 IsENDTest = false;
                 if (db_Car.TestName.Contains("绝缘") || db_Car.TestName.Contains("直流口") || db_Car.TestName.Contains("交流口") || db_Car.TestName.Contains("直流充电口") || db_Car.TestName.Contains("交流充电口"))//
                 {
-                    Thread.Sleep(800);
-                   
+                    mesageeData = $"正在进行{db_Car.TestName}检测";
+
                     Progressdisplay(100, RowIndex);
-                    
+                    Thread.Sleep(3000);
 
                     IsDengdianwei = false;
                    // serialPortTest1.Write("TEST" + "\r\n");
@@ -1154,6 +1134,48 @@ namespace SafetyTesting.Control
                 {
                     button1.Enabled = true;
                     IsDengdianwei = true;
+
+                    mesageeData = $"请进行{db_Car.TestName}检测";
+                }
+
+
+                if (IsOk)
+                {
+                    Task.Run(() =>
+                    {
+                        SpVoice voice = new SpVoice();
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        uint lll = 0;
+                        voice.Speak($"合格", 0, out lll);
+
+
+                        Thread.Sleep(300);
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        voice.Speak(mesageeData, 0, out lll);
+
+
+                    });
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        SpVoice voice = new SpVoice();
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        uint lll = 0;
+                        voice.Speak($"不合格", 0, out lll);
+
+
+                        Thread.Sleep(300);
+                        voice.SetRate(1);//语速
+                        voice.SetVolume(100);//音量
+                        voice.Speak(mesageeData, 0, out lll);
+
+
+                    });
                 }
             }
             catch (Exception ex)
@@ -1171,6 +1193,7 @@ namespace SafetyTesting.Control
                 LogHelper.Info("---------------检测结束-----------------------");
                 byte addressID = 0x01;
                 timer1.Enabled = false;
+                ucobd1.CloseCAN();
                 if (CurrentStation.Contains("内饰"))
                 {
                     addressID = 0x02;
@@ -1206,15 +1229,7 @@ namespace SafetyTesting.Control
                 {
                     timer_anguiConn.Enabled = true;
                 }
-
-                Task.Run(() =>
-                {
-                    SpVoice voice = new SpVoice();
-                    voice.SetRate(1);//语速
-                    voice.SetVolume(100);//音量
-                    uint lll = 0;
-                    voice.Speak($"检测结束  请驶离工位", 0, out lll);
-                });
+                
                 List<listsen> listsens = new List<listsen>();
                 bool isPass = true;
                 List<db_TestingData> db_Testings = new List<db_TestingData>();
@@ -1275,6 +1290,9 @@ namespace SafetyTesting.Control
                         if (viewRow.Cells[5].Value.ToString().Contains("不合格"))
                         {
                             isPass = false;
+
+
+                           
                         }
 
                         Data.VIN = textBox_vin.Text;
@@ -1303,11 +1321,40 @@ namespace SafetyTesting.Control
                         }
                     }
                 }
-               
 
+                string datal = isPass ? "合格" : "不合格";
+                Task.Run(() =>
+                {
+                    SpVoice voice = new SpVoice();
+                    voice.SetRate(1);//语速
+                    voice.SetVolume(100);//音量
+                    uint lll = 0;
+                    voice.Speak($"检测结束  " + datal, 0, out lll);
+                });
                 //计数
-                if (isPass)
+                if (isPass) 
+                {
                     numOK += 1;
+
+                    Task.Run(() =>
+                    {
+                        Device.OutputDO(GreenDo, true);
+                        Thread.Sleep(50);
+                        Device.OutputDO(GreenDo, true);
+                        Thread.Sleep(80);
+
+                        Device.OutputDO(yellowDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(yellowDo, false);
+                        Thread.Sleep(50);
+
+                        Device.OutputDO(redDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redDo, false);
+                    });
+                    
+                    
+                }
                 else
                 {
 
@@ -1315,8 +1362,24 @@ namespace SafetyTesting.Control
 
                     Task.Run(() =>
                     {
+
+                        Device.OutputDO(GreenDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(GreenDo, false);
+                        Thread.Sleep(50);
+
+                        Device.OutputDO(yellowDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(yellowDo, false);
+                        Thread.Sleep(50);
+
+                        Device.OutputDO(redDo, true);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redDo, true);
+                        Thread.Sleep(80);
+
                         Device.OutputDO(lmlDO, true);
-                        Thread.Sleep(5000);
+                        Thread.Sleep(2000);
                         Device.OutputDO(lmlDO, false);
                     });
                 }
@@ -1329,8 +1392,13 @@ namespace SafetyTesting.Control
                 Thread.Sleep(1000);
                 //上传 淋雨后
 
-                
-                MesUpload(db_Testings);
+                Task.Run(() =>
+                {
+
+
+                    MesUpload(db_Testings);
+                });
+               
 
             }
             catch (Exception ex)
@@ -1345,33 +1413,33 @@ namespace SafetyTesting.Control
             #region 上传数据
             Dictionary<string, string> args = new Dictionary<string, string>(); //方法的参数
             bool IsOK = true;
-            string DDWVal = "?";
-            string DCBDDWZ = "?";
-            string SHYDDWZ = "?";
-            string DQDDDWZ = "?";
-            string YSJDDWZ = "?";
-            string PTCDDWZ = "?";
-            string JLCDQDDWZ = "?";
-            string ZLCDQDDWZ = "?";
-            string KMCJYBZ = "?";
-            string KCJYZ = "?";
-            string MCJYZ = "?";
-            string Kcjyzz = "?";
-            string ZCJY1BZ = "?";
-            string ZCJY1Z = "?";
-            string BAK2 = "?";
-            string Kcjyzf = "?";
+            string DDWVal = "";
+            string DCBDDWZ = "";
+            string SHYDDWZ = "";
+            string DQDDDWZ = "";
+            string YSJDDWZ = "";
+            string PTCDDWZ = "";
+            string JLCDQDDWZ = "";
+            string ZLCDQDDWZ = "";
+            string KMCJYBZ = "";
+            string KCJYZ = "";
+            string MCJYZ = "";
+            string Kcjyzz = "";
+            string ZCJY1BZ = "";
+            string ZCJY1Z = "";
+            string BAK2 = "";
+            string Kcjyzf = "";
             foreach (db_TestingData testingData in db_TestingData)
             {
                 args["VIN"] = testingData.Vin;
                 args["CAR_MODEL"] = testingData.carModuleCode;
-                if (CurrentStation.Contains("淋雨后"))
+                if (CurrentStation.Contains("淋雨"))
                 {
-                    args["DEVICE_ID"] = "2";
+                    args["DEVICE_ID"] = "3";
                 }
                 else
                 {
-                    args["DEVICE_ID"] = "3";
+                    args["DEVICE_ID"] = "2";
                 }
                 args["create_date"] = testingData.CreateTime;
                 if (testingData.result == "不合格")
@@ -1456,26 +1524,26 @@ namespace SafetyTesting.Control
             args["MCJYZ"] = MCJYZ;
             args["ZCJY1BZ"] = ZCJY1BZ;
             args["ZCJY1Z"] = ZCJY1Z;
-            args["ZCJY2Z"] = "?";
-            args["BAK1"] = "?";
+            args["ZCJY2Z"] = "";
+            args["BAK1"] = "";
             args["BAK2"] = BAK2;
-            args["BAK3"] = "?";
-            args["BAK4"] = "?";
-            args["BAK5"] = "?";
-            args["GYX"] = "?";
-            args["DJKZQ1"] = "?";
+            args["BAK3"] = "";
+            args["BAK4"] = "";
+            args["BAK5"] = "";
+            args["GYX"] = "";
+            args["DJKZQ1"] = "";
 
-            args["DJ"] = "?";
-            args["JSQ"] = "?";
-            args["GYYTJ"] = "?";
+            args["DJ"] = "";
+            args["JSQ"] = "";
+            args["GYYTJ"] = "";
             args["Kcjyzz"] = Kcjyzz;
             args["Kcjyzf"] = Kcjyzf;
-            args["mcjyzz"] = "?";
-            args["mcjyzf"] = "?";
-            args["Zcjy1zz"] = "?";
-            args["Zcjy1zf"] = "?";
-            args["Zcjy2zz"] = "?";
-            args["Zcjy2zf"] = "?";
+            args["mcjyzz"] = "";
+            args["mcjyzf"] = "";
+            args["Zcjy1zz"] = "";
+            args["Zcjy1zf"] = "";
+            args["Zcjy2zz"] = "";
+            args["Zcjy2zf"] = "";
             #endregion
 
 
@@ -1486,53 +1554,63 @@ namespace SafetyTesting.Control
 
             // LogHelper.Info("上传数据：" + sb.ToString());
             string _returnstr = "";
-
-
-            //发起请求
-            WebRequest webRequest = WebRequest.Create(setting.MESAddress);
-            webRequest.ContentType = "text/xml; charset=utf-8";
-            webRequest.Method = "POST";
-            using (Stream requestStream = webRequest.GetRequestStream())
+            Ping pingSender = new Ping();
+            PingReply reply = pingSender.Send("10.209.0.110");
+            if (reply.Status == IPStatus.Success)
             {
-                byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
-                requestStream.Write(paramBytes, 0, paramBytes.Length);
-            }
-            //响应
-            try
-            {
-                WebResponse webResponse = webRequest.GetResponse();
-                using (StreamReader myStreamReader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+
+                //发起请求
+                WebRequest webRequest = WebRequest.Create(setting.MESAddress);
+                webRequest.ContentType = "text/xml; charset=utf-8";
+                webRequest.Method = "POST";
+                using (Stream requestStream = webRequest.GetRequestStream())
                 {
-                    _returnstr = myStreamReader.ReadToEnd();
+                    byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
+                    requestStream.Write(paramBytes, 0, paramBytes.Length);
                 }
-            }
-            catch (WebException ex)
-            {
-                _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
-            }
-            
-            if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
-            {
-                foreach (db_TestingData data in db_TestingData)
+                //响应
+                try
                 {
-                    data.IsUpload = "是";
-                    safetyDataRepository.Update<db_TestingData>(data);
+                    WebResponse webResponse = webRequest.GetResponse();
+                    using (StreamReader myStreamReader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+                    {
+                        _returnstr = myStreamReader.ReadToEnd();
+                    }
+                }
+                catch (WebException ex)
+                {
+                    _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
                 }
 
-                label_Message.Text = "数据上传MES成功";
-                label_Message.ForeColor = Color.Lime;
+                if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
+                {
+                    foreach (db_TestingData data in db_TestingData)
+                    {
+                        data.IsUpload = "是";
+                        safetyDataRepository.Update<db_TestingData>(data);
+                    }
+
+                    label_Message.Text = "数据上传MES成功";
+                    label_Message.ForeColor = Color.Lime;
+                }
+                else
+                {
+                    foreach (db_TestingData data in db_TestingData)
+                    {
+                        data.IsUpload = "否";
+                        safetyDataRepository.Update<db_TestingData>(data);
+                    }
+
+                    label_Message.Text = "数据上传MES失败";
+                    label_Message.ForeColor = Color.Lime;
+                }
             }
             else
             {
-                foreach (db_TestingData data in db_TestingData)
-                {
-                    data.IsUpload = "否";
-                    safetyDataRepository.Update<db_TestingData>(data);
-                }
-
-                label_Message.Text = "数据上传MES失败";
-                label_Message.ForeColor = Color.Lime;
+                Console.WriteLine("网络连接异常");
             }
+
+            
         }
 
         int ErrCount = 0;//错误次数
@@ -1610,11 +1688,7 @@ namespace SafetyTesting.Control
                 }
                 else if (data.Contains("ECU通讯超时"))
                 {
-                    ErrCount ++;
-                    if (ErrCount>1)
-                    {
-                        return;
-                    }
+                   
                     label_Message.Text = "通讯超时,请重新扫码检测";
                     label_Message.BackColor = Color.Red;
                     dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
@@ -1644,6 +1718,18 @@ namespace SafetyTesting.Control
                     // Progressdisplay(130, RowIndex);
                     LogHelper.Info("设置整车绝缘检测：SET-BAT 0.00,1.00," + strs[0] + ",500,200," + "\r\n");
 
+                }
+                else if (data.Contains("闭合快充继电器失败"))
+                {
+                    label_Message.BackColor = Color.Red;
+                    dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
+                    dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
+                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
+
+                    Progressdisplay(250, RowIndex);
+                    IsOk = false;
+
+                    TestEnd();
                 }
                 else if (data == "完成开启绝缘继电器")
                 {
@@ -1776,6 +1862,7 @@ namespace SafetyTesting.Control
         {
             try
             {
+                
                 ErrCount = 0;
                 if (Global.IsStop)
                 {
@@ -1786,6 +1873,7 @@ namespace SafetyTesting.Control
                     return;
                 }
                 bool Ischoice = false;
+
                 if (dataGridView1.Rows.Count > RowIndex)
                 {
                     for (int i = RowIndex; i < dataGridView1.Rows.Count; i++)
@@ -1801,14 +1889,23 @@ namespace SafetyTesting.Control
                     {
                         return;
                     }
-                    if (CurrentStation.Contains("内饰"))
-                    {
-                        Device.OutputDO(yellowDo, true);
-                    }
-                    else
-                    {
-                        Device.OutputDO(yellowDo, true);
-                    }
+
+
+                    Task.Run(() => {
+                        Device.OutputDO(GreenDo, true);
+                        Thread.Sleep(50);
+                        Device.OutputDO(GreenDo, true);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redDo, false);
+                        Thread.Sleep(50);
+
+                        Device.OutputDO(yellowDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(yellowDo, false);
+                    });
+                   
 
                     label_Message.Text = "";
 
@@ -1845,20 +1942,26 @@ namespace SafetyTesting.Control
                         addressID = 0x02;
                     }
 
+                    
 
-                   
 
-                    if (CurrentStation == "整车安规检测工位")
+                    if (CurrentStation == "整车安规检测工位-最终线" || CurrentStation == "整车安规检测工位-淋雨线")
                     {
+                        db_CarModule db_Caraaa = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
+
+                        Task.Run(() =>
+                        {
+                            SpVoice voice = new SpVoice();
+                            voice.SetRate(1);//语速
+                            voice.SetVolume(100);//音量
+                            uint lll = 0;
+                            voice.Speak($"请进行{db_Caraaa.TestName}检测", 0, out lll);
+                        });
+
                         AN1622HQuickMode();
                         
                     }
-                    else 
-                    {
-                        serialPortTest1.Write("ENTER-SET" + "\r\n");
-                        LogHelper.Info("ENTER-SET");
-                    }
-
+                   
                     
                    
 
@@ -2003,8 +2106,23 @@ namespace SafetyTesting.Control
         public void ScenVIn(string carName="") 
         {
 
-           
-            
+            Task.Run(() =>
+            {
+                Device.OutputDO(GreenDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(GreenDo, false);
+                Thread.Sleep(80);
+
+                Device.OutputDO(yellowDo, true);
+                Thread.Sleep(50);
+                Device.OutputDO(yellowDo, true);
+                Thread.Sleep(50);
+
+                Device.OutputDO(redDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(redDo, false);
+            });
+
 
             if (textBox_carmodle.Text.Length > 17)
             {
@@ -2192,16 +2310,7 @@ namespace SafetyTesting.Control
                     }
 
 
-                    db_CarModule db_Caraaa = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
-
-                    Task.Run(() =>
-                    {
-                        SpVoice voice = new SpVoice();
-                        voice.SetRate(1);//语速
-                        voice.SetVolume(100);//音量
-                        uint lll = 0;
-                        voice.Speak($"请进行{db_Caraaa.TestName}检测", 0, out lll);
-                    });
+                    
                 }
                 else
                 {
@@ -2289,6 +2398,10 @@ namespace SafetyTesting.Control
 
         private void button2_Click_2(object sender, EventArgs e)
         {
+            label_Message.Text = "";
+            label_Message.BackColor = Color.Transparent;
+            label_Message.Refresh();
+
             ucobd1.CloseCAN();
             timer1.Stop();
             textBox_vin.Enabled = true;
@@ -2297,10 +2410,11 @@ namespace SafetyTesting.Control
             Device.OutputDO(lmlDO, false);
             Thread.Sleep(50);
             Device.OutputDO(lmlDO, false);
-            label_Message.Text = "";
+           
             RowIndex = 0;
 
             ScenVIn();
+
         }
 
         private void button_auto_Click(object sender, EventArgs e)
@@ -2356,7 +2470,10 @@ namespace SafetyTesting.Control
             textBox_carmodle.Visible = false;
         }
 
-        
+        private void textBox_carmodle_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+
+        }
     }
     public static class UserInfo 
     {

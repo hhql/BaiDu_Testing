@@ -34,11 +34,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.dataGridView_carModul = new System.Windows.Forms.DataGridView();
-            this.code = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CarModuleCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Testname = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.range = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.pass = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.contextMenuStrip_car = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
@@ -60,6 +55,12 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label_carName = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.code = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CarModuleCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Testname = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.range = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pass = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_carModul)).BeginInit();
             this.contextMenuStrip_car.SuspendLayout();
@@ -98,7 +99,8 @@
             this.CarModuleCode,
             this.Testname,
             this.range,
-            this.pass});
+            this.pass,
+            this.Column3});
             this.dataGridView_carModul.ContextMenuStrip = this.contextMenuStrip_car;
             this.dataGridView_carModul.EnableHeadersVisualStyles = false;
             this.dataGridView_carModul.Location = new System.Drawing.Point(20, 31);
@@ -111,55 +113,6 @@
             this.dataGridView_carModul.TabIndex = 0;
             this.dataGridView_carModul.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_carModul_CellMouseUp);
             this.dataGridView_carModul.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dataGridView_carModul_KeyUp);
-            // 
-            // code
-            // 
-            this.code.DataPropertyName = "code";
-            this.code.HeaderText = "序号";
-            this.code.Name = "code";
-            // 
-            // CarModuleCode
-            // 
-            this.CarModuleCode.DataPropertyName = "carModuleCode";
-            this.CarModuleCode.HeaderText = "车型号";
-            this.CarModuleCode.Name = "CarModuleCode";
-            this.CarModuleCode.Visible = false;
-            this.CarModuleCode.Width = 200;
-            // 
-            // Testname
-            // 
-            this.Testname.DataPropertyName = "TestName";
-            this.Testname.HeaderText = "检测名称";
-            this.Testname.Name = "Testname";
-            this.Testname.Width = 400;
-            // 
-            // range
-            // 
-            this.range.DataPropertyName = "Range";
-            this.range.HeaderText = "范围值";
-            this.range.Name = "range";
-            this.range.Width = 200;
-            // 
-            // pass
-            // 
-            this.pass.DataPropertyName = "Pass";
-            this.pass.FillWeight = 200F;
-            this.pass.HeaderText = "通道";
-            this.pass.Items.AddRange(new object[] {
-            "通道一",
-            "通道二",
-            "通道三",
-            "通道四",
-            "通道五",
-            "通道六",
-            "通道七",
-            "通道八",
-            "通道九",
-            "通道十",
-            "通道十一",
-            "通道十二"});
-            this.pass.Name = "pass";
-            this.pass.Width = 150;
             // 
             // contextMenuStrip_car
             // 
@@ -401,6 +354,62 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "车型";
             // 
+            // code
+            // 
+            this.code.DataPropertyName = "code";
+            this.code.HeaderText = "序号";
+            this.code.Name = "code";
+            // 
+            // CarModuleCode
+            // 
+            this.CarModuleCode.DataPropertyName = "carModuleCode";
+            this.CarModuleCode.HeaderText = "车型号";
+            this.CarModuleCode.Name = "CarModuleCode";
+            this.CarModuleCode.Visible = false;
+            this.CarModuleCode.Width = 200;
+            // 
+            // Testname
+            // 
+            this.Testname.DataPropertyName = "TestName";
+            this.Testname.HeaderText = "检测名称";
+            this.Testname.Name = "Testname";
+            this.Testname.Width = 400;
+            // 
+            // range
+            // 
+            this.range.DataPropertyName = "Range";
+            this.range.HeaderText = "范围值";
+            this.range.Name = "range";
+            this.range.Width = 200;
+            // 
+            // pass
+            // 
+            this.pass.DataPropertyName = "Pass";
+            this.pass.FillWeight = 200F;
+            this.pass.HeaderText = "通道";
+            this.pass.Items.AddRange(new object[] {
+            "通道一",
+            "通道二",
+            "通道三",
+            "通道四",
+            "通道五",
+            "通道六",
+            "通道七",
+            "通道八",
+            "通道九",
+            "通道十",
+            "通道十一",
+            "通道十二"});
+            this.pass.Name = "pass";
+            this.pass.Width = 150;
+            // 
+            // Column3
+            // 
+            this.Column3.DataPropertyName = "id";
+            this.Column3.HeaderText = "Column3";
+            this.Column3.Name = "Column3";
+            this.Column3.Visible = false;
+            // 
             // CarModul
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -436,11 +445,6 @@
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.TextBox textBox_vin;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn code;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CarModuleCode;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Testname;
-        private System.Windows.Forms.DataGridViewTextBoxColumn range;
-        private System.Windows.Forms.DataGridViewComboBoxColumn pass;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_car;
         private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
@@ -457,5 +461,11 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn code;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CarModuleCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Testname;
+        private System.Windows.Forms.DataGridViewTextBoxColumn range;
+        private System.Windows.Forms.DataGridViewComboBoxColumn pass;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
     }
 }

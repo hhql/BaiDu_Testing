@@ -12,8 +12,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using WebSocket4Net;
@@ -445,8 +447,13 @@ namespace SafetyTesting.Control
         {
             try
             {
-                label_MES.Text = "执行MES上传";
-                label_MES.ForeColor = Color.Lime;
+                Ping pingSender = new Ping();
+                PingReply reply = pingSender.Send("10.209.0.110");
+                if (reply.Status != IPStatus.Success)
+                {
+                    LogHelper.warning("自动上传MES失败");
+                    return;
+                }
 
                 //查询前20 条未上传数据
                 List<db_TestingData> db_TestingDatas = safetyDataRepository.GetData<db_TestingData>().Where(x => x.IsUpload == "否").ToList();
@@ -466,33 +473,33 @@ namespace SafetyTesting.Control
                     #region 上传数据
 
                     bool IsOK = true;
-                    string DDWVal = "?";
-                    string DCBDDWZ = "?";
-                    string SHYDDWZ = "?";
-                    string DQDDDWZ = "?";
-                    string YSJDDWZ = "?";
-                    string PTCDDWZ = "?";
-                    string JLCDQDDWZ = "?";
-                    string ZLCDQDDWZ = "?";
-                    string KMCJYBZ = "?";
-                    string KCJYZ = "?";
-                    string MCJYZ = "?";
-                    string Kcjyzz = "?";
-                    string ZCJY1BZ = "?";
-                    string ZCJY1Z = "?";
-                    string BAK2 = "?";
-                    string Kcjyzf = "?";
+                    string DDWVal = "";
+                    string DCBDDWZ = "";
+                    string SHYDDWZ = "";
+                    string DQDDDWZ = "";
+                    string YSJDDWZ = "";
+                    string PTCDDWZ = "";
+                    string JLCDQDDWZ = "";
+                    string ZLCDQDDWZ = "";
+                    string KMCJYBZ = "";
+                    string KCJYZ = "";
+                    string MCJYZ = "";
+                    string Kcjyzz = "";
+                    string ZCJY1BZ = "";
+                    string ZCJY1Z = "";
+                    string BAK2 = "";
+                    string Kcjyzf = "";
                     foreach (db_TestingData testingData in db_TestingData)
                     {
                         args["VIN"] = testingData.Vin;
                         args["CAR_MODEL"] = testingData.carModuleCode;
-                        if (CurrentStation.Contains("淋雨后"))
+                        if (CurrentStation.Contains("淋雨"))
                         {
-                            args["DEVICE_ID"] = "2";
+                            args["DEVICE_ID"] = "3";
                         }
                         else 
                         {
-                            args["DEVICE_ID"] = "3";
+                            args["DEVICE_ID"] = "2";
                         }
                         args["create_date"] = testingData.CreateTime;
                         if (testingData.result == "不合格")
@@ -577,26 +584,26 @@ namespace SafetyTesting.Control
                     args["MCJYZ"] = MCJYZ;
                     args["ZCJY1BZ"] = ZCJY1BZ;
                     args["ZCJY1Z"] = ZCJY1Z;
-                    args["ZCJY2Z"] = "?";
-                    args["BAK1"] = "?";
+                    args["ZCJY2Z"] = "";
+                    args["BAK1"] = "";
                     args["BAK2"] = BAK2;
-                    args["BAK3"] = "?";
-                    args["BAK4"] = "?";
-                    args["BAK5"] = "?";
-                    args["GYX"] = "?";
-                    args["DJKZQ1"] = "?";
+                    args["BAK3"] = "";
+                    args["BAK4"] = "";
+                    args["BAK5"] = "";
+                    args["GYX"] = "";
+                    args["DJKZQ1"] = "";
 
-                    args["DJ"] = "?";
-                    args["JSQ"] = "?";
-                    args["GYYTJ"] = "?";
+                    args["DJ"] = "";
+                    args["JSQ"] = "";
+                    args["GYYTJ"] = "";
                     args["Kcjyzz"] = Kcjyzz;
                     args["Kcjyzf"] = Kcjyzf;
-                    args["mcjyzz"] = "?";
-                    args["mcjyzf"] = "?";
-                    args["Zcjy1zz"] = "?";
-                    args["Zcjy1zf"] = "?";
-                    args["Zcjy2zz"] = "?";
-                    args["Zcjy2zf"] = "?";
+                    args["mcjyzz"] = "";
+                    args["mcjyzf"] = "";
+                    args["Zcjy1zz"] = "";
+                    args["Zcjy1zf"] = "";
+                    args["Zcjy2zz"] = "";
+                    args["Zcjy2zf"] = "";
                     #endregion
 
 
@@ -606,49 +613,56 @@ namespace SafetyTesting.Control
                     //doc.LoadXml();
 
                    // LogHelper.Info("上传数据：" + sb.ToString());
-                    string _returnstr = "";
-                    //发起请求
-                    WebRequest webRequest = WebRequest.Create(MESAddress);
-                    webRequest.ContentType = "text/xml; charset=utf-8";
-                    webRequest.Method = "POST";
-                    using (Stream requestStream = webRequest.GetRequestStream())
-                    {
-                        byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
-                        requestStream.Write(paramBytes, 0, paramBytes.Length);
-                    }
-                    //响应
-                    try
-                    {
-                        WebResponse webResponse = webRequest.GetResponse();
-                        using (StreamReader myStreamReader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+                   
+
+                   
+                        string _returnstr = "";
+                        //发起请求
+                        WebRequest webRequest = WebRequest.Create(MESAddress);
+                        webRequest.ContentType = "text/xml; charset=utf-8";
+                        webRequest.Method = "POST";
+                        using (Stream requestStream = webRequest.GetRequestStream())
                         {
-                            _returnstr = myStreamReader.ReadToEnd();
+                            byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
+                            requestStream.Write(paramBytes, 0, paramBytes.Length);
                         }
-                    }
-                    catch (WebException ex)
-                    {
-                        _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
-                    }
-                    LogHelper.warning("回调结果：" + _returnstr);
+                        //响应
+                        try
+                        {
+                            WebResponse webResponse = webRequest.GetResponse();
+                            using (StreamReader myStreamReader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+                            {
+                                _returnstr = myStreamReader.ReadToEnd();
+                            }
+                        }
+                        catch (WebException ex)
+                        {
+                            _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
+                        }
+                        
 
 
-                    if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
-                    {
-                        foreach (db_TestingData data in db_TestingData)
+                        if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
                         {
-                            data.IsUpload = "是";
-                            safetyDataRepository.Update<db_TestingData>(data);
-                        }
-                    }
-                    else 
-                    {
-                        foreach (db_TestingData data in db_TestingData)
-                        {
-                            data.IsUpload = "否";
-                            safetyDataRepository.Update<db_TestingData>(data);
-                        }
-                    }
+                            foreach (db_TestingData data in db_TestingData)
+                            {
+                                data.IsUpload = "是";
+                                safetyDataRepository.Update<db_TestingData>(data);
+                            }
 
+                        LogHelper.warning("自动上传MES成功");
+                    }
+                        else
+                        {
+                            foreach (db_TestingData data in db_TestingData)
+                            {
+                                data.IsUpload = "否";
+                                safetyDataRepository.Update<db_TestingData>(data);
+                            }
+
+                        LogHelper.warning("自动上传MES失败");
+                    }
+                    
 
                     
                 }

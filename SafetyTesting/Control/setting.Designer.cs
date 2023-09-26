@@ -107,12 +107,8 @@
             // 
             this.comboBox_CurrentStation.FormattingEnabled = true;
             this.comboBox_CurrentStation.Items.AddRange(new object[] {
-            "SUV下线检测点",
-            "轻卡下线检测点",
-            "轻卡淋雨检测点",
-            "整车涉水检测点",
-            "轻卡等电位检测点",
-            "SUV等电位检测点"});
+            "整车安规检测工位-最终线",
+            "整车安规检测工位-淋雨线"});
             this.comboBox_CurrentStation.Location = new System.Drawing.Point(219, 194);
             this.comboBox_CurrentStation.Name = "comboBox_CurrentStation";
             this.comboBox_CurrentStation.Size = new System.Drawing.Size(121, 25);

@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using ZLGCAN;
@@ -55,13 +56,13 @@ namespace SafetyTesting.Control
         EFunctionType status = EFunctionType.FaultCode;//0 故障，1：充电
         public string message;
         CarModuleType type1 = CarModuleType.D180;
-        private int eCUTimeout = 5;
+        private int eCUTimeout = 3;
         string RevertID = "7E8";
         string SendID = "7E0";
 
         //进入扩展模式
         const string ENTER_EXTENDED = "02 10 03 00 00 00 00 00";
-        const string ENTER_EXTENDED_ACK = "06 50 03"; // 50 03
+        const string ENTER_EXTENDED_ACK = "50 03"; // 50 03
 
         //请求种子
         const string REQUEST_SEED = "02 27 01 00 00 00 00 00";
@@ -345,6 +346,11 @@ namespace SafetyTesting.Control
                 SendID = "720";
                 RevertID = "799";
             }
+            else 
+            {
+                SendID = "7E0";
+                RevertID = "7E8";
+            }
 
 
             if (!setFilter(SendID,RevertID))
@@ -429,7 +435,6 @@ namespace SafetyTesting.Control
         /// </summary>
         public void StartCAN(EFunctionType type,CarModuleType cartype= CarModuleType.D180,bool auto=true)
         {
-          //  ProcessTimeOutTimer.Enabled = true;
             IsAuto = auto;
             IsEnd = false;
             status = type;
@@ -465,6 +470,13 @@ namespace SafetyTesting.Control
                 if (status ==EFunctionType.VehicleRelay_CLOSE)
                 {
                     SendCommand("05 2F D0 10 03 00 AA AA", "791");
+                }
+            }
+            else
+            {
+                if (status == EFunctionType.VehicleRelay_CLOSE)
+                {
+                    SendCommand("04 31 02 51 02 55 55 55", SendID);
                 }
             }
 
@@ -529,18 +541,18 @@ namespace SafetyTesting.Control
                 }
                 else
                 {
+                    
                     LogHelper.CANInfo($"Data CAN  Send(ID = {SendId})->" + strData);
+                    ProcessTimeOutTimer.Enabled = true;
                 }
 
             }
 
             if (result != 1)
             {
-                //MessageBox.Show("发送数据失败", "提示", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 LogHelper.CANInfo("发送数据失败： "+ strData);
-                learningResultAction("错误，和ECU通讯超时。", 2);
 
-                CloseCAN();
+
             }
             else
             {
@@ -589,6 +601,7 @@ namespace SafetyTesting.Control
                 }
                 message = $"Data CAN  received(ID={ GetId(id).ToString("X2")}) ->" + text;
                 LogHelper.CANInfo(message);
+                ProcessTimeOutTimer.Enabled = false;
                 ParseReceived(text);
 
 
@@ -620,7 +633,7 @@ namespace SafetyTesting.Control
 
                 message = $"Data CANFD  received(ID={ GetId(id).ToString("X2")}) ->" + text;
 
-                
+                ProcessTimeOutTimer.Enabled = false;
                 LogHelper.CANInfo(message);
 
                 ParseReceived(text);
@@ -642,6 +655,7 @@ namespace SafetyTesting.Control
         bool IsError=true;
         bool IsEnd = false;//是否结束
         bool Isvcu=false;//是否是VCU
+        bool IsBHOK=false;//闭合应答
         
         private void ParseReceived(string strData)
         {
@@ -649,7 +663,6 @@ namespace SafetyTesting.Control
             //if (strData.Length < 16)
             //    return;
 
-            timeOutCount = 0;
 
             //if (IsEnd)
             //{
@@ -666,19 +679,22 @@ namespace SafetyTesting.Control
                 // OBDWatchingTimer.Enabled = false;
 
                 message = "进入扩展会话...";
-                
+
                 //1, Request seed
 
-                
 
-                if (Isvcu)
+                if (type1==CarModuleType.RT6)
                 {
-                    SendID = "791";
+                    if (Isvcu)
+                    {
+                        SendID = "791";
+                    }
+                    else
+                    {
+                        SendID = "720";
+                    }
                 }
-                else
-                {
-                    SendID = "720";
-                }
+                
 
                 SendCommand(REQUEST_SEED, SendID);//02 27 01 00 00 00 00 00
                 IsError = true;
@@ -703,25 +719,23 @@ namespace SafetyTesting.Control
                 uint seed = Convert.ToUInt32(strData.Substring(6, 8), 16);
                 uint ukey = canculate_app_security_access_xxx(seed);
                 string strKey = ukey.ToString("X8");//12202320
-                if (strKey.Length==7)
-                {
-                    LogHelper.CANInfo("密钥长度不对");
-                    learningResultAction("错误响应", 30);
-                    return;
-                }
+               
                 string normalizedKeys = string.Join(" ", Regex.Matches(strKey, @"..").Cast<Match>().ToList());
-                LogHelper.CANInfo("密钥长度"+normalizedKeys.Length.ToString()+"密钥："+ normalizedKeys);
                 string strKeyCmd = SEND_KEY + normalizedKeys;
                 learningResultAction("发送密钥", 50);
 
-                if (Isvcu)
+                if (type1==CarModuleType.RT6)
                 {
-                    SendID = "791";
+                    if (Isvcu)
+                    {
+                        SendID = "791";
+                    }
+                    else
+                    {
+                        SendID = "720";
+                    }
                 }
-                else
-                {
-                    SendID = "720";
-                }
+               
                 SendCommand(strKeyCmd + " 00", SendID);//06 27 02 YY YY YY YY 00
                 IsError = true;
                 IsABC = true;
@@ -844,67 +858,7 @@ namespace SafetyTesting.Control
                 learningResultAction(message, 100);
                 CloseCAN();
             }
-            else if (strData.Contains("71 01 51 00 00"))//
-            {
-                
-
-                if (status == EFunctionType.Insulation_CLOSE)
-                {
-                    message = "完成关闭绝缘继电器";
-                    learningResultAction(message, 100);
-                    CloseCAN();
-
-                    //Delay(20000); //2s
-
-                    //string str = SEND_IRM_DATA_OPEN;
-                    //SendCommand(str, SendID); //整车端继电器闭合
-
-
-                }
-                else if (status == EFunctionType.Insulation__OPEN)
-                {
-
-                    message = "完成开启绝缘继电器";
-                    learningResultAction(message, 100);
-                }
-                
-            }
-            else if (strData.Contains("71 01 51 01 01"))
-            {
-                //继续发送 整车端继电器闭合
-                if (status == EFunctionType.Insulation_CLOSE)
-                {
-
-                    if (IsAuto)//自动
-                    {
-                        Delay(10000);
-                        string str = SEND_IRM_DATA_OPEN;
-                        SendCommand(str, SendID); //整车端继电器闭合
-
-                    }
-
-                }
-            }
-            else if (strData.Contains("71 01 51 02 00"))
-            {
-
-                 if (status == EFunctionType.VehicleRelay_CLOSE)
-                {
-                    message = "完成断开快充继电器";
-                    learningResultAction(message, 100);
-                    CloseCAN();
-                }
-            }
-            else if (strData.Contains("71 01 51 02 01"))
-            {
-                if (status == EFunctionType.VehicleRelay_OPEN)
-                {
-                    message = "完成闭合快充继电器";
-                    learningResultAction(message, 100);
-                    CloseCAN();
-                }
-            }
-            else if (strData.Contains("71 01 A2 01 00"))
+            else if (strData.Contains("71 01 A2 01 00") || strData.Contains("31 01 51 00 00"))
             {
                 //RT6 关闭绝缘成功  接着闭合快充继电器
                 Isvcu = true;
@@ -912,34 +866,58 @@ namespace SafetyTesting.Control
                 {
                     //继续发送开绝缘
 
-                    //连续发三次 一次一秒
                     message = "绝缘打开成功";
                     learningResultAction(message, 80);
 
                     string str = "02 10 01 00 00 00 00 00";
                     SendCommand(str, "720");
                     Isextend = true;
-
-
-
-
                 }
                 else
                 {
                     message = "关闭绝缘成功";
                     learningResultAction(message, 80);
                     status = EFunctionType.VehicleRelay_OPEN;
-                    SendCommand(SendData, "791");
-                }
-            }
-            else if (strData.Contains("6F D0 10 03 01"))
-            {
-                //RT6 快充接触器闭合成功
+                    if (type1==CarModuleType.RT6)
+                    {
+                        SendCommand(SendData, "791");
+                    }
+                    else
+                    {
+                        SendCommand("04 31 01 51 02 55 55 55", SendID);
+                        //5s之后再次发送相同服务
+                        //计数 5s 后有没有收到闭合成功或者闭合失败指令
+                        IsBHOK = false;
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(5000);
+                            if (IsBHOK)
+                            {
+                                SendCommand("04 31 01 51 02 55 55 55", SendID);
+                            }
+                        });
+                    }
 
+                }
+            }//关闭绝缘成功  接着闭合快充继电器
+            else if (strData.Contains("6F D0 10 03 01") || strData.Contains("71 01 51 03 01"))
+            {
+                if (type1 != CarModuleType.RT6) 
+                {
+                    //RT6 快充接触器闭合成功
+                    Delay(10000);//等待10s检测整车绝缘
+                }
+                IsBHOK = true;
                 message = "完成闭合快充继电器";
                 learningResultAction(message, 80);
-            }
-            else if (strData.Contains("6F D0 10 03 00"))
+            }//快充接触器闭合成功
+            else if (strData.Contains("71 01 51 03 00"))
+            {
+                IsBHOK = true;
+                message = "闭合快充继电器失败";
+                learningResultAction(message, 80);
+            }//快充接触器闭合失败
+            else if (strData.Contains("6F D0 10 03 00") || strData.Contains("71 01 51 04 01"))
             {
                 message = "完成断开快充继电器";
                 learningResultAction(message, 80);
@@ -953,7 +931,14 @@ namespace SafetyTesting.Control
                 message = "切换默认会话";
                 learningResultAction(message, 80);
                 //
-            }
+            }//完成断开快充继电器 接着发送返回默认会话
+            else if (strData.Contains("02 50 01"))
+            {
+                //结束
+                message = "返回默认模式成功";
+                learningResultAction(message, 80);
+                CloseCAN();
+            }//接收默认会话切换成功
             else if (strData.Contains("06 50 01 00 32 01 F4"))
             {
                 //接收默认会话切换成功
@@ -972,9 +957,8 @@ namespace SafetyTesting.Control
 
                 message = "发送绝缘打开";
                 learningResultAction(message, 80);
-
-
             }
+
 
 
 
@@ -1038,6 +1022,10 @@ namespace SafetyTesting.Control
                 {
                     MASK = 0x113289D7;
                 }
+            }
+            else
+            {
+                MASK = 0x113289D7;
             }
             
 
@@ -1198,6 +1186,10 @@ namespace SafetyTesting.Control
 
         }
 
+        /// <summary>
+        /// 等待
+        /// </summary>
+        /// <param name="mm"></param>
         public static void Delay(int mm)
         {
             DateTime current = DateTime.Now;
@@ -1207,14 +1199,17 @@ namespace SafetyTesting.Control
             }
             return;
         }
+        object obj = new object();
         private void ProcessTimeOut_Tick(object source, ElapsedEventArgs e)
         {
             try
             {
+               
                 timeOutCount++;
                 if (timeOutCount > eCUTimeout) //20s not feedback from ECU, then trigger timeout event
                 {
-                    learningResultAction("错误，和ECU通讯超时。", 2);
+                    ProcessTimeOutTimer.Stop();
+                    learningResultAction("ECU通讯超时", 2);
                     CloseCAN();
 
                     LogHelper.CANInfo("Communication to ECU time out.");
@@ -1224,6 +1219,7 @@ namespace SafetyTesting.Control
             {
                 LogHelper.CANInfo(ex.ToString());
             }
+
         }
 
     }

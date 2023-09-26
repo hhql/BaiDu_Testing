@@ -82,7 +82,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("思源黑体 CN Bold", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(236)))), ((int)(((byte)(241)))));
-            this.label1.Location = new System.Drawing.Point(752, 17);
+            this.label1.Location = new System.Drawing.Point(670, 17);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(265, 58);
             this.label1.TabIndex = 0;
