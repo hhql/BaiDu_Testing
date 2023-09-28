@@ -243,40 +243,41 @@ namespace SafetyTesting.Control
                             CarModuleName = carModuleCode,
                             Vin = code
                         };
-                        
-                        //if (db_Car != null)
-                        //{
-                        //    db_Car.Vin = code;
-                        //    db_Car.CarModuleName = carModuleCode;
-                        //    safetyDataRepository.Update<db_CarVinCode>(db_Car);
-                        //}
-                        //else
-                        //{
-                        //    safetyDataRepository.Insert(db_CarVin);
-                        //}
 
+
+                        
 
                         db_CarVinCode db_Car = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == name).FirstOrDefault();
                         if (db_Car!=null)
                         {
 
                             safetyDataRepository.Insert(db_CarVin);
-                            
-                        }
 
-
-
-                        db_CarVinCode db_Car1 = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == carModuleCode).FirstOrDefault();
-                        if (db_Car1 != null)
-                        {
-                            List<db_CarModule> db_Carmodule = safetyDataRepository.GetData<db_CarModule>().Where(x => x.CarModuleName == name).ToList();
-                            foreach (db_CarModule item in db_Carmodule)
+                            if (name!= carModuleCode)
                             {
-                                item.CarModuleName = carModuleCode;
-                            }
+                                db_CarVinCode db_Car1 = safetyDataRepository.GetData<db_CarVinCode>().Where(x => x.CarModuleName == carModuleCode).FirstOrDefault();
+                                if (db_Car1 != null)
+                                {
+                                    List<db_CarModule> db_Carmodule = safetyDataRepository.GetData<db_CarModule>().Where(x => x.CarModuleName == name).ToList();
+                                    foreach (db_CarModule item in db_Carmodule)
+                                    {
+                                        item.CarModuleName = carModuleCode;
+                                    }
 
-                            safetyDataRepository.Inserts(db_Carmodule);
+                                    safetyDataRepository.Inserts(db_Carmodule);
+                                }
+                            }
+                           
+
                         }
+                        else
+                        {
+                            safetyDataRepository.Insert(db_CarVin);
+                        }
+
+
+
+                       
 
 
 

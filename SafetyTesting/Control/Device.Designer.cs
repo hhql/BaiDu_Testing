@@ -118,19 +118,27 @@
             this.label34 = new System.Windows.Forms.Label();
             this.textBox_TestBaudRate = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.label42 = new System.Windows.Forms.Label();
+            this.textBox_batReadTime = new System.Windows.Forms.TextBox();
             this.textBox_batTime = new System.Windows.Forms.TextBox();
             this.label43 = new System.Windows.Forms.Label();
-            this.textBox_batReadTime = new System.Windows.Forms.TextBox();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.label42 = new System.Windows.Forms.Label();
+            this.comboBox_RedLight = new System.Windows.Forms.ComboBox();
+            this.RedLight = new SafetyTesting.UI.RoundButton();
+            this.label11 = new System.Windows.Forms.Label();
+            this.comboBox_GreenLight = new System.Windows.Forms.ComboBox();
+            this.GreenLight = new SafetyTesting.UI.RoundButton();
+            this.label13 = new System.Windows.Forms.Label();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.tabPage3.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -1387,7 +1395,7 @@
             this.label25.AutoSize = true;
             this.label25.Font = new System.Drawing.Font("Microsoft YaHei UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label25.ForeColor = System.Drawing.Color.Red;
-            this.label25.Location = new System.Drawing.Point(21, 135);
+            this.label25.Location = new System.Drawing.Point(21, 81);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(69, 35);
             this.label25.TabIndex = 8;
@@ -1402,7 +1410,7 @@
             this.REDL.DistanceToBorder = 4;
             this.REDL.FocusBorderColor = System.Drawing.Color.Transparent;
             this.REDL.IsShowIcon = false;
-            this.REDL.Location = new System.Drawing.Point(149, 127);
+            this.REDL.Location = new System.Drawing.Point(149, 73);
             this.REDL.Name = "REDL";
             this.REDL.Size = new System.Drawing.Size(50, 50);
             this.REDL.TabIndex = 9;
@@ -1419,7 +1427,7 @@
             this.YellowL.DistanceToBorder = 4;
             this.YellowL.FocusBorderColor = System.Drawing.Color.Transparent;
             this.YellowL.IsShowIcon = false;
-            this.YellowL.Location = new System.Drawing.Point(149, 219);
+            this.YellowL.Location = new System.Drawing.Point(149, 165);
             this.YellowL.Name = "YellowL";
             this.YellowL.Size = new System.Drawing.Size(50, 50);
             this.YellowL.TabIndex = 11;
@@ -1432,7 +1440,7 @@
             this.label26.AutoSize = true;
             this.label26.Font = new System.Drawing.Font("Microsoft YaHei UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label26.ForeColor = System.Drawing.Color.Yellow;
-            this.label26.Location = new System.Drawing.Point(21, 227);
+            this.label26.Location = new System.Drawing.Point(21, 173);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(69, 35);
             this.label26.TabIndex = 10;
@@ -1447,7 +1455,7 @@
             this.GreenL.DistanceToBorder = 4;
             this.GreenL.FocusBorderColor = System.Drawing.Color.Transparent;
             this.GreenL.IsShowIcon = false;
-            this.GreenL.Location = new System.Drawing.Point(149, 318);
+            this.GreenL.Location = new System.Drawing.Point(149, 264);
             this.GreenL.Name = "GreenL";
             this.GreenL.Size = new System.Drawing.Size(50, 50);
             this.GreenL.TabIndex = 13;
@@ -1460,7 +1468,7 @@
             this.label27.AutoSize = true;
             this.label27.Font = new System.Drawing.Font("Microsoft YaHei UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label27.ForeColor = System.Drawing.Color.Lime;
-            this.label27.Location = new System.Drawing.Point(21, 326);
+            this.label27.Location = new System.Drawing.Point(21, 272);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(69, 35);
             this.label27.TabIndex = 12;
@@ -1475,7 +1483,7 @@
             this.FML.DistanceToBorder = 4;
             this.FML.FocusBorderColor = System.Drawing.Color.Transparent;
             this.FML.IsShowIcon = false;
-            this.FML.Location = new System.Drawing.Point(149, 419);
+            this.FML.Location = new System.Drawing.Point(149, 365);
             this.FML.Name = "FML";
             this.FML.Size = new System.Drawing.Size(50, 50);
             this.FML.TabIndex = 15;
@@ -1488,7 +1496,7 @@
             this.label28.AutoSize = true;
             this.label28.Font = new System.Drawing.Font("Microsoft YaHei UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label28.ForeColor = System.Drawing.Color.White;
-            this.label28.Location = new System.Drawing.Point(21, 427);
+            this.label28.Location = new System.Drawing.Point(21, 373);
             this.label28.Name = "label28";
             this.label28.Size = new System.Drawing.Size(69, 35);
             this.label28.TabIndex = 14;
@@ -1522,7 +1530,7 @@
             "21",
             "22",
             "23"});
-            this.comboBox_red.Location = new System.Drawing.Point(94, 141);
+            this.comboBox_red.Location = new System.Drawing.Point(94, 87);
             this.comboBox_red.Name = "comboBox_red";
             this.comboBox_red.Size = new System.Drawing.Size(55, 25);
             this.comboBox_red.TabIndex = 16;
@@ -1555,7 +1563,7 @@
             "21",
             "22",
             "23"});
-            this.comboBox_yellow.Location = new System.Drawing.Point(94, 233);
+            this.comboBox_yellow.Location = new System.Drawing.Point(94, 179);
             this.comboBox_yellow.Name = "comboBox_yellow";
             this.comboBox_yellow.Size = new System.Drawing.Size(55, 25);
             this.comboBox_yellow.TabIndex = 16;
@@ -1588,7 +1596,7 @@
             "21",
             "22",
             "23"});
-            this.comboBox_green.Location = new System.Drawing.Point(94, 332);
+            this.comboBox_green.Location = new System.Drawing.Point(94, 278);
             this.comboBox_green.Name = "comboBox_green";
             this.comboBox_green.Size = new System.Drawing.Size(55, 25);
             this.comboBox_green.TabIndex = 16;
@@ -1621,7 +1629,7 @@
             "21",
             "22",
             "23"});
-            this.comboBox_fml.Location = new System.Drawing.Point(96, 433);
+            this.comboBox_fml.Location = new System.Drawing.Point(96, 379);
             this.comboBox_fml.Name = "comboBox_fml";
             this.comboBox_fml.Size = new System.Drawing.Size(55, 25);
             this.comboBox_fml.TabIndex = 16;
@@ -1755,6 +1763,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "安规配置";
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.tabControl1.ItemSize = new System.Drawing.Size(92, 20);
+            this.tabControl1.Location = new System.Drawing.Point(6, 79);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(409, 187);
+            this.tabControl1.TabIndex = 6;
+            // 
             // tabPage3
             // 
             this.tabPage3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(26)))), ((int)(((byte)(67)))));
@@ -1769,14 +1788,12 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "设置整车绝缘";
             // 
-            // label42
+            // textBox_batReadTime
             // 
-            this.label42.AutoSize = true;
-            this.label42.Location = new System.Drawing.Point(122, 48);
-            this.label42.Name = "label42";
-            this.label42.Size = new System.Drawing.Size(65, 20);
-            this.label42.TabIndex = 10;
-            this.label42.Text = "测试时间";
+            this.textBox_batReadTime.Location = new System.Drawing.Point(201, 100);
+            this.textBox_batReadTime.Name = "textBox_batReadTime";
+            this.textBox_batReadTime.Size = new System.Drawing.Size(121, 24);
+            this.textBox_batReadTime.TabIndex = 13;
             // 
             // textBox_batTime
             // 
@@ -1794,29 +1811,157 @@
             this.label43.TabIndex = 12;
             this.label43.Text = "读取时间";
             // 
-            // textBox_batReadTime
+            // label42
             // 
-            this.textBox_batReadTime.Location = new System.Drawing.Point(201, 100);
-            this.textBox_batReadTime.Name = "textBox_batReadTime";
-            this.textBox_batReadTime.Size = new System.Drawing.Size(121, 24);
-            this.textBox_batReadTime.TabIndex = 13;
+            this.label42.AutoSize = true;
+            this.label42.Location = new System.Drawing.Point(122, 48);
+            this.label42.Name = "label42";
+            this.label42.Size = new System.Drawing.Size(65, 20);
+            this.label42.TabIndex = 10;
+            this.label42.Text = "测试时间";
             // 
-            // tabControl1
+            // comboBox_RedLight
             // 
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.tabControl1.ItemSize = new System.Drawing.Size(92, 20);
-            this.tabControl1.Location = new System.Drawing.Point(6, 79);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(409, 187);
-            this.tabControl1.TabIndex = 6;
+            this.comboBox_RedLight.FormattingEnabled = true;
+            this.comboBox_RedLight.Items.AddRange(new object[] {
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23"});
+            this.comboBox_RedLight.Location = new System.Drawing.Point(93, 14);
+            this.comboBox_RedLight.Name = "comboBox_RedLight";
+            this.comboBox_RedLight.Size = new System.Drawing.Size(55, 25);
+            this.comboBox_RedLight.TabIndex = 37;
+            // 
+            // RedLight
+            // 
+            this.RedLight.BorderColor = System.Drawing.Color.Transparent;
+            this.RedLight.BorderWidth = 1;
+            this.RedLight.ButtonCenterColorEnd = System.Drawing.Color.White;
+            this.RedLight.ButtonCenterColorStart = System.Drawing.Color.Gray;
+            this.RedLight.DistanceToBorder = 4;
+            this.RedLight.FocusBorderColor = System.Drawing.Color.Transparent;
+            this.RedLight.IsShowIcon = false;
+            this.RedLight.Location = new System.Drawing.Point(146, 0);
+            this.RedLight.Name = "RedLight";
+            this.RedLight.Size = new System.Drawing.Size(50, 50);
+            this.RedLight.TabIndex = 36;
+            this.RedLight.Text = "roundButton4";
+            this.RedLight.UseVisualStyleBackColor = true;
+            this.RedLight.Click += new System.EventHandler(this.DO_Click);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label11.ForeColor = System.Drawing.Color.Red;
+            this.label11.Location = new System.Drawing.Point(18, 13);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(74, 21);
+            this.label11.TabIndex = 35;
+            this.label11.Text = "指示红灯";
+            // 
+            // comboBox_GreenLight
+            // 
+            this.comboBox_GreenLight.FormattingEnabled = true;
+            this.comboBox_GreenLight.Items.AddRange(new object[] {
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23"});
+            this.comboBox_GreenLight.Location = new System.Drawing.Point(93, 70);
+            this.comboBox_GreenLight.Name = "comboBox_GreenLight";
+            this.comboBox_GreenLight.Size = new System.Drawing.Size(55, 25);
+            this.comboBox_GreenLight.TabIndex = 40;
+            // 
+            // GreenLight
+            // 
+            this.GreenLight.BorderColor = System.Drawing.Color.Transparent;
+            this.GreenLight.BorderWidth = 1;
+            this.GreenLight.ButtonCenterColorEnd = System.Drawing.Color.White;
+            this.GreenLight.ButtonCenterColorStart = System.Drawing.Color.Gray;
+            this.GreenLight.DistanceToBorder = 4;
+            this.GreenLight.FocusBorderColor = System.Drawing.Color.Transparent;
+            this.GreenLight.IsShowIcon = false;
+            this.GreenLight.Location = new System.Drawing.Point(146, 56);
+            this.GreenLight.Name = "GreenLight";
+            this.GreenLight.Size = new System.Drawing.Size(50, 50);
+            this.GreenLight.TabIndex = 39;
+            this.GreenLight.Text = "roundButton4";
+            this.GreenLight.UseVisualStyleBackColor = true;
+            this.GreenLight.Click += new System.EventHandler(this.DO_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label13.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.label13.Location = new System.Drawing.Point(18, 69);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(74, 21);
+            this.label13.TabIndex = 38;
+            this.label13.Text = "指示绿灯";
+            // 
+            // panel3
+            // 
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.GreenLight);
+            this.panel3.Controls.Add(this.comboBox_GreenLight);
+            this.panel3.Controls.Add(this.label11);
+            this.panel3.Controls.Add(this.RedLight);
+            this.panel3.Controls.Add(this.label13);
+            this.panel3.Controls.Add(this.comboBox_RedLight);
+            this.panel3.Location = new System.Drawing.Point(3, 532);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(208, 113);
+            this.panel3.TabIndex = 41;
             // 
             // Device
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(26)))), ((int)(((byte)(67)))));
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.button_DeviceSave);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -1848,9 +1993,11 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1953,5 +2100,12 @@
         private System.Windows.Forms.TextBox textBox_batTime;
         private System.Windows.Forms.Label label43;
         private System.Windows.Forms.Label label42;
+        private System.Windows.Forms.ComboBox comboBox_RedLight;
+        private UI.RoundButton RedLight;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox comboBox_GreenLight;
+        private UI.RoundButton GreenLight;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Panel panel3;
     }
 }

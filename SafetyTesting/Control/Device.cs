@@ -260,6 +260,12 @@ namespace SafetyTesting.Control
                     case 14:
                         comboBox_fml.SelectedItem = iOModule.IOModule1;
                         break;
+                    case 15:
+                        comboBox_RedLight.SelectedItem = iOModule.IOModule1;
+                        break;
+                    case 16:
+                        comboBox_GreenLight.SelectedItem = iOModule.IOModule1;
+                        break;
                 }
             }
 
@@ -383,6 +389,18 @@ namespace SafetyTesting.Control
                 Pass = "fml",
                 IOModule1 = comboBox_fml.Text == "" ? "0" : comboBox_fml.Text,
                 IOModule2 = comboBox_fml.Text == "" ? "0" : comboBox_fml.Text
+            });
+            db_IOModules.Add(new db_IOModule
+            {
+                Pass = "RedLight",
+                IOModule1 = comboBox_RedLight.Text == "" ? "0" : comboBox_RedLight.Text,
+                IOModule2 = comboBox_RedLight.Text == "" ? "0" : comboBox_RedLight.Text
+            });
+            db_IOModules.Add(new db_IOModule
+            {
+                Pass = "GreenLight",
+                IOModule1 = comboBox_GreenLight.Text == "" ? "0" : comboBox_GreenLight.Text,
+                IOModule2 = comboBox_GreenLight.Text == "" ? "0" : comboBox_GreenLight.Text
             });
             //db_IOModules.Add(new db_IOModule
             //{
@@ -588,6 +606,16 @@ namespace SafetyTesting.Control
                     OutputDO(comboBox_fml.Text, IsOn);
                     Thread.Sleep(50);
                     OutputDO(comboBox_fml.Text, IsOn);
+                    break;
+                case "RedLight":
+                    OutputDO(comboBox_RedLight.Text, IsOn);
+                    Thread.Sleep(50);
+                    OutputDO(comboBox_RedLight.Text, IsOn);
+                    break;
+                case "GreenLight":
+                    OutputDO(comboBox_GreenLight.Text, IsOn);
+                    Thread.Sleep(50);
+                    OutputDO(comboBox_GreenLight.Text, IsOn);
                     break;
                     //case "DO11":
                     //    OutputDO(comboBox21.Text, IsOn);

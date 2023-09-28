@@ -40,6 +40,8 @@ namespace SafetyTesting.Control
         public string GreenDo = string.Empty;
         public string yellowDo=string.Empty;
         public string redDo = string.Empty;
+        public string redLightDo = string.Empty;
+        public string GreenLightDo = string.Empty;
         public bool IsTest = false;
         public bool AnGuiConn = false;
         public bool CONNCOMM = true;
@@ -363,7 +365,10 @@ namespace SafetyTesting.Control
                 db_IOModule db_io3 = safetyDataRepository.GetData<db_IOModule>().Where(x => x.Pass == "red").FirstOrDefault();
                 redDo = db_io3.IOModule1;
 
-                
+                db_IOModule db_io4 = safetyDataRepository.GetData<db_IOModule>().Where(x => x.Pass == "RedLight").FirstOrDefault();
+                redLightDo = db_io4.IOModule1;
+                db_IOModule db_io5 = safetyDataRepository.GetData<db_IOModule>().Where(x => x.Pass == "GreenLight").FirstOrDefault();
+                GreenLightDo = db_io5.IOModule1;
 
 
                 Device.OutputDO(lmlDO, false);
@@ -747,6 +752,10 @@ namespace SafetyTesting.Control
         {
             try
             {
+                if (IsInit)
+                {
+                    return;
+                }
                 if (data==null)
                 {
                     return;
@@ -924,6 +933,7 @@ namespace SafetyTesting.Control
                         if (cont>900)
                         {
                             dataGridView1.Rows[RowIndex].Cells[3].Value = ">1000mΩ";
+                            dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
                         }
                         else
                         {
@@ -960,6 +970,10 @@ namespace SafetyTesting.Control
 
 
                 }
+                if (db_Car.TestName.Contains("整车绝缘"))
+                {
+                    IsZCJY = true;
+                }
 
                 if (dataGridView1.Rows[RowIndex].Cells[5].Value == "不合格")
                 {
@@ -971,10 +985,23 @@ namespace SafetyTesting.Control
                     //重测
                     if (TestingNG<2)
                     {
-
-                        if (db_Car.TestName!="整车绝缘")
+                        if (db_Car.TestName.Contains("直流口"))
+                        {
+                            LogHelper.Info(db_Car.TestName);
+                        }
+                        else if (db_Car.TestName!="整车绝缘" )
                         {
                             //AN1622HQuickMode();
+
+                            Task.Run(() =>
+                            {
+                                Thread.Sleep(50);
+                                Device.OutputDO(redLightDo, true);
+                                Thread.Sleep(50);
+                                Device.OutputDO(redLightDo, true);
+
+                                LogHelper.Info("触发探笔红灯亮");
+                            });
 
                             Task.Run(() =>
                             {
@@ -1011,7 +1038,7 @@ namespace SafetyTesting.Control
                 LogHelper.Error("AN1662H  错误信息："+ex.ToString());
             }
         }
-
+        bool IsZCJY = false;
         int TestingNG=1;
         bool IsOk=false;
         public static void Delay(int mm)
@@ -1027,6 +1054,8 @@ namespace SafetyTesting.Control
         {
             try
             {
+
+
                 RowIndex++;
                 LogHelper.Info("检测完成" + dataGridView1.Rows.Count + "," + RowIndex);
                 if (dataGridView1.Rows.Count == RowIndex)
@@ -1137,10 +1166,21 @@ namespace SafetyTesting.Control
 
                     mesageeData = $"请进行{db_Car.TestName}检测";
                 }
-
+                LogHelper.Info(mesageeData);
 
                 if (IsOk)
                 {
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(30);
+                        Device.OutputDO(GreenLightDo, true);
+                        Thread.Sleep(50);
+
+                        Device.OutputDO(GreenLightDo, true);
+
+                        LogHelper.Info("触发探笔绿灯亮");
+                    });
+
                     Task.Run(() =>
                     {
                         SpVoice voice = new SpVoice();
@@ -1155,11 +1195,22 @@ namespace SafetyTesting.Control
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
 
+                        
 
                     });
                 }
                 else
                 {
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(30);
+                        Device.OutputDO(redLightDo, true);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redLightDo, true);
+
+                        LogHelper.Info("触发探笔红灯亮");
+                    });
+
                     Task.Run(() =>
                     {
                         SpVoice voice = new SpVoice();
@@ -1173,7 +1224,7 @@ namespace SafetyTesting.Control
                         voice.SetRate(1);//语速
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
-
+                       
 
                     });
                 }
@@ -1193,7 +1244,7 @@ namespace SafetyTesting.Control
                 LogHelper.Info("---------------检测结束-----------------------");
                 byte addressID = 0x01;
                 timer1.Enabled = false;
-                ucobd1.CloseCAN();
+                
                 if (CurrentStation.Contains("内饰"))
                 {
                     addressID = 0x02;
@@ -1330,6 +1381,7 @@ namespace SafetyTesting.Control
                     voice.SetVolume(100);//音量
                     uint lll = 0;
                     voice.Speak($"检测结束  " + datal, 0, out lll);
+                    LogHelper.Info("检测结束");
                 });
                 //计数
                 if (isPass) 
@@ -1605,10 +1657,7 @@ namespace SafetyTesting.Control
                     label_Message.ForeColor = Color.Lime;
                 }
             }
-            else
-            {
-                Console.WriteLine("网络连接异常");
-            }
+           
 
             
         }
@@ -1616,6 +1665,11 @@ namespace SafetyTesting.Control
         int ErrCount = 0;//错误次数
         public void LearningResult(string data, int num)
         {
+            if (IsInit)
+            {
+                return;
+            }
+            
             LogHelper.Info("CAN:" + data);
             Invoke(new EventHandler(delegate
             {
@@ -1628,7 +1682,7 @@ namespace SafetyTesting.Control
                 }
                 else if (data.Contains("错误响应"))
                 {
-
+                    ucobd1.IsEndss = true;
                     ucobd1.CloseCAN();//关闭CAN
                     ErrCount = 0;
                     textBox_vin.Enabled = true;
@@ -1686,20 +1740,29 @@ namespace SafetyTesting.Control
 
 
                 }
+                else if (data.Contains("返回默认模式成功"))
+                {
+                    IsZCJY = true;
+                }
                 else if (data.Contains("ECU通讯超时"))
                 {
-                   
-                    label_Message.Text = "通讯超时,请重新扫码检测";
-                    label_Message.BackColor = Color.Red;
-                    dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
-                    dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
-                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
+                    if (!IsZCJY)
+                    {
+                        label_Message.Text = "通讯超时,请重新扫码检测";
+                        label_Message.BackColor = Color.Red;
+                        dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
+                        dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
+                        dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
 
-                    Progressdisplay(250, RowIndex);
-                    IsOk = false;
+                        Progressdisplay(250, RowIndex);
+                        IsOk = false;
 
-                    TestEnd();
+                        TestEnd();
 
+                        ucobd1.IsEndss = true;
+                        ucobd1.CloseCAN();
+                    }
+                    
                     //下一项检测
                 }
                 else if (data.Contains("完成闭合快充继电器"))
@@ -1864,6 +1927,8 @@ namespace SafetyTesting.Control
             {
                 
                 ErrCount = 0;
+                IsInit = false;
+                IsZCJY = false;
                 if (Global.IsStop)
                 {
                     return;
@@ -1904,6 +1969,15 @@ namespace SafetyTesting.Control
                         Device.OutputDO(yellowDo, false);
                         Thread.Sleep(50);
                         Device.OutputDO(yellowDo, false);
+
+                        Thread.Sleep(50);
+                        Device.OutputDO(GreenLightDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(GreenLightDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redLightDo, false);
+                        Thread.Sleep(50);
+                        Device.OutputDO(redLightDo, false);
                     });
                    
 
@@ -2121,6 +2195,14 @@ namespace SafetyTesting.Control
                 Device.OutputDO(redDo, false);
                 Thread.Sleep(50);
                 Device.OutputDO(redDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(redLightDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(redLightDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(GreenLightDo, false);
+                Thread.Sleep(50);
+                Device.OutputDO(GreenLightDo, false);
             });
 
 
@@ -2393,15 +2475,16 @@ namespace SafetyTesting.Control
         }
 
 
-        
 
 
+        bool IsInit = false;//是否初始化
         private void button2_Click_2(object sender, EventArgs e)
         {
+            IsInit = true;
             label_Message.Text = "";
             label_Message.BackColor = Color.Transparent;
             label_Message.Refresh();
-
+            ucobd1.IsEndss = true;
             ucobd1.CloseCAN();
             timer1.Stop();
             textBox_vin.Enabled = true;
@@ -2415,6 +2498,8 @@ namespace SafetyTesting.Control
 
             ScenVIn();
 
+            
+            LogHelper.Info("复位");
         }
 
         private void button_auto_Click(object sender, EventArgs e)
