@@ -86,7 +86,7 @@ namespace SafetyTesting
         {
             if (textBox_username.Text == "")
             {
-                textBox_username.Text = "Username";
+                textBox_username.Text = "JMEV";
             }
         }
 

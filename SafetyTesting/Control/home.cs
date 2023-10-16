@@ -1443,12 +1443,14 @@ namespace SafetyTesting.Control
 
                 Thread.Sleep(1000);
                 //上传 淋雨后
-
+                
                 Task.Run(() =>
                 {
 
-
+                    
                     MesUpload(db_Testings);
+
+
                 });
                
 
@@ -1657,9 +1659,21 @@ namespace SafetyTesting.Control
                     label_Message.ForeColor = Color.Lime;
                 }
             }
-           
 
-            
+
+            //Thread.Sleep(3000);
+            textBox_vin.Text = "";
+            textBox_carmodle.Text = "";
+            //DataTable dt = new DataTable();
+            //dt.Columns.Add("id", typeof(string));
+            //dt.Columns.Add("name", typeof(string));
+            //dt.Columns.Add("fanwei", typeof(string));
+            //dt.Columns.Add("value", typeof(string));
+            //dt.Columns.Add("PressImg", typeof(Image));
+            //dt.Columns.Add("result", typeof(string));
+            //dt.Columns.Add("Choice", typeof(bool));
+            //dataGridView1.DataSource = dt;
+
         }
 
         int ErrCount = 0;//错误次数

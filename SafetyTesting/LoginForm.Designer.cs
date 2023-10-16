@@ -44,8 +44,8 @@
             this.textBox_username.Multiline = true;
             this.textBox_username.Name = "textBox_username";
             this.textBox_username.Size = new System.Drawing.Size(173, 19);
-            this.textBox_username.TabIndex = 0;
-            this.textBox_username.Text = "Username";
+            this.textBox_username.TabIndex = 1;
+            this.textBox_username.Text = "JMEV";
             this.textBox_username.Enter += new System.EventHandler(this.textBox_username_Enter);
             this.textBox_username.Leave += new System.EventHandler(this.textBox_username_Leave);
             this.textBox_username.MouseDown += new System.Windows.Forms.MouseEventHandler(this.textBox_username_MouseDown);
@@ -61,7 +61,7 @@
             this.textBox_password.Name = "textBox_password";
             this.textBox_password.PasswordChar = '*';
             this.textBox_password.Size = new System.Drawing.Size(173, 14);
-            this.textBox_password.TabIndex = 1;
+            this.textBox_password.TabIndex = 0;
             this.textBox_password.Text = "Password";
             this.textBox_password.WordWrap = false;
             this.textBox_password.Enter += new System.EventHandler(this.textBox_password_Enter);
