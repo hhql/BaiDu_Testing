@@ -145,6 +145,7 @@
             // 
             // comboBox_carModules
             // 
+            this.comboBox_carModules.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_carModules.Font = new System.Drawing.Font("思源黑体 CN Regular", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.comboBox_carModules.FormattingEnabled = true;
             this.comboBox_carModules.Location = new System.Drawing.Point(270, 83);
@@ -171,7 +172,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(88, 46);
             this.button2.TabIndex = 6;
-            this.button2.Text = "复位";
+            this.button2.Text = "放弃";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click_2);
             // 
@@ -320,12 +321,14 @@
             // 
             // textBox_carmodle
             // 
+            this.textBox_carmodle.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.textBox_carmodle.Font = new System.Drawing.Font("思源黑体 CN Regular", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBox_carmodle.ForeColor = System.Drawing.Color.Black;
             this.textBox_carmodle.Location = new System.Drawing.Point(270, 82);
+            this.textBox_carmodle.MaxLength = 500;
             this.textBox_carmodle.Name = "textBox_carmodle";
             this.textBox_carmodle.Size = new System.Drawing.Size(548, 47);
-            this.textBox_carmodle.TabIndex = 1;
+            this.textBox_carmodle.TabIndex = 2;
             this.textBox_carmodle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.textBox_carmodle.DoubleClick += new System.EventHandler(this.textBox_carmodle_DoubleClick);
             this.textBox_carmodle.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBox_vin_KeyUp);
@@ -345,13 +348,17 @@
             // 
             // textBox_vin
             // 
+            this.textBox_vin.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.textBox_vin.Font = new System.Drawing.Font("思源黑体 CN Regular", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBox_vin.ForeColor = System.Drawing.Color.Black;
             this.textBox_vin.Location = new System.Drawing.Point(270, 30);
+            this.textBox_vin.MaxLength = 17;
             this.textBox_vin.Name = "textBox_vin";
             this.textBox_vin.Size = new System.Drawing.Size(548, 47);
             this.textBox_vin.TabIndex = 1;
             this.textBox_vin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textBox_vin.TextChanged += new System.EventHandler(this.textBox_vin_TextChanged);
+            this.textBox_vin.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBox_vin_KeyUp_1);
             // 
             // label3
             // 

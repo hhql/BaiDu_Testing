@@ -150,6 +150,16 @@ namespace SafetyTesting.Control
                 textBox_batTime.Text = datas[0];
                 textBox_batReadTime.Text = datas[1];
             }
+
+
+            db_Testing = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName == "GB配置").FirstOrDefault();
+            if (db_Testing != null)
+            {
+                string[] datas = db_Testing.Value.Split(';');
+                textBox1.Text = datas[0];
+                textBox2.Text = datas[1];
+                textBox3.Text = datas[2];
+            }
         }
 
         /// <summary>
@@ -1007,6 +1017,13 @@ namespace SafetyTesting.Control
                     {
                         db_BATTesting.Value = textBox_batTime.Text + ";" + textBox_batReadTime.Text;
                         safetyDataRepository.Update(db_BATTesting);
+                    }
+
+                    db_TestingConfig db_GBTesting = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName == "GB配置").FirstOrDefault();
+                    if (db_GBTesting != null)
+                    {
+                        db_GBTesting.Value = textBox1.Text + ";" + textBox2.Text+";"+ textBox3.Text;
+                        safetyDataRepository.Update(db_GBTesting);
                     }
 
                     MessageBox.Show("重启系统生效");

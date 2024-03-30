@@ -507,6 +507,7 @@ namespace SafetyTesting.Control
             int canfd_exp_index = 0;
             uint result; //发送的帧数
 
+            Thread.Sleep(50);//收到响应等待50ms 发送
             if (0 == protocol_index) //can
             {
 
@@ -717,7 +718,7 @@ namespace SafetyTesting.Control
             else if (strData.Contains(REQUEST_SEED_ACK))//06 67 01 XX XX XX XX 00
             {
                
-                IsSendkey = false;
+                IsSendkey = true;
                 message = "请求种子";
 
                 //5B 1E CE 35
@@ -880,15 +881,16 @@ namespace SafetyTesting.Control
 
             else if (strData.Contains("71 01 A2 01 00") || strData.Contains("71 01 51 00 00"))
             {
-                //RT6 关闭绝缘成功  接着闭合快充继电器
-                Isvcu = true;
+                
+                   //RT6 关闭绝缘成功  接着闭合快充继电器
+                   Isvcu = true;
                 if (status == EFunctionType.Insulation__OPEN)
                 {
                     //继续发送开绝缘
 
                     message = "绝缘打开成功";
                     learningResultAction(message, 80);
-
+                    status = EFunctionType.NULL;
                     string str = "02 10 01 00 00 00 00 00";
                     SendCommand(str, "720");
                     Isextend = true;
@@ -951,11 +953,12 @@ namespace SafetyTesting.Control
                 {
                     string str = "02 10 01 00 00 00 00 00";
                     SendCommand(str, "7E0");
+                    status = EFunctionType.NULL;
                 }
                 
                 
-                status = EFunctionType.NULL;
-                IsSendkey = true;
+                
+                
                 IsEndss = true;
                 message = "切换默认会话";
                 learningResultAction(message, 80);
@@ -999,14 +1002,62 @@ namespace SafetyTesting.Control
                 }
                 
             }
+            else if (strData.Contains("03 7F 27 78"))
+            {
+                //请求种子等待3s 3s没有请求到继续请求种子
 
+                XHCount++;
+                if (XHCount>3)
+                {
+                    XHCount = 0;
+                    //结束
+                    learningResultAction("ECU通讯超时", 100);
+                    return;
+                }
+
+                Task.Run(() =>
+                {
+                    
+                    bool IsXH = true;
+                    int XH = 0;
+                    while (IsXH)
+                    {
+                        XH++;
+                        Thread.Sleep(1000);
+                        if (IsSendkey)
+                        {
+                            XHCount = 0;
+                            IsXH = false;
+                        }
+                        else
+                        {
+                            if (XH >3)
+                            {
+                                IsXH = false;
+                                //继续请求种子
+                                if (type1 == CarModuleType.RT6)
+                                {
+                                    SendCommand(SendData, "720");
+                                    Isvcu = false;
+                                }
+                                else
+                                {
+                                    SendCommand(SendData, SendID);
+                                }
+                            }
+                        }
+                        
+                    }
+                });
+
+            }
 
 
 
 
         }
 
-
+        int XHCount = 0;
         int SendCount = 1;
         uint MASK = 0x113289D7;
 

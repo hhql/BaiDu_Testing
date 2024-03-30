@@ -131,6 +131,16 @@
             this.GreenLight = new SafetyTesting.UI.RoundButton();
             this.label13 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -139,6 +149,7 @@
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -1766,6 +1777,7 @@
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.tabControl1.ItemSize = new System.Drawing.Size(92, 20);
             this.tabControl1.Location = new System.Drawing.Point(6, 79);
@@ -1956,6 +1968,100 @@
             this.panel3.Size = new System.Drawing.Size(208, 113);
             this.panel3.TabIndex = 41;
             // 
+            // tabPage1
+            // 
+            this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(26)))), ((int)(((byte)(67)))));
+            this.tabPage1.Controls.Add(this.label23);
+            this.tabPage1.Controls.Add(this.label22);
+            this.tabPage1.Controls.Add(this.label21);
+            this.tabPage1.Controls.Add(this.textBox3);
+            this.tabPage1.Controls.Add(this.label19);
+            this.tabPage1.Controls.Add(this.textBox2);
+            this.tabPage1.Controls.Add(this.label17);
+            this.tabPage1.Controls.Add(this.textBox1);
+            this.tabPage1.Controls.Add(this.label14);
+            this.tabPage1.Location = new System.Drawing.Point(4, 24);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(401, 159);
+            this.tabPage1.TabIndex = 3;
+            this.tabPage1.Text = "电位均衡";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(148, 25);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(121, 24);
+            this.textBox1.TabIndex = 13;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(69, 28);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(65, 20);
+            this.label14.TabIndex = 12;
+            this.label14.Text = "电阻上限";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(148, 67);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(121, 24);
+            this.textBox2.TabIndex = 15;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(69, 70);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(65, 20);
+            this.label17.TabIndex = 14;
+            this.label17.Text = "电阻下限";
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(148, 116);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(89, 24);
+            this.textBox3.TabIndex = 17;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(69, 119);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(65, 20);
+            this.label19.TabIndex = 16;
+            this.label19.Text = "测试时间";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(275, 29);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(109, 20);
+            this.label21.TabIndex = 18;
+            this.label21.Text = "1.0~1000.0 mΩ";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(275, 71);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(109, 20);
+            this.label22.TabIndex = 19;
+            this.label22.Text = "0.0~1000.0 mΩ";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(238, 120);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(167, 20);
+            this.label23.TabIndex = 20;
+            this.label23.Text = "0.5~999.9s（0=无限长）";
+            // 
             // Device
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1998,6 +2104,8 @@
             this.tabPage3.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2107,5 +2215,15 @@
         private UI.RoundButton GreenLight;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label14;
     }
 }

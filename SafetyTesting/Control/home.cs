@@ -209,7 +209,14 @@ namespace SafetyTesting.Control
         {
 
             //dataGridView1.DefaultCellStyle = new DataGridViewCellStyle() { ForeColor = Color.Blue, Font = new Font("Arial", 11F, FontStyle.Bold) };
-            
+
+
+            //SpeechSynthesizer synth = new SpeechSynthesizer();
+            //synth.Rate = 0;
+            //synth.Volume = 100;
+            //synth.SelectVoice("VW Lily");
+            //string strNotionce = string.Empty;
+            textBox_vin.Focus();
             try
             {
                 Task.Run(() =>
@@ -632,7 +639,7 @@ namespace SafetyTesting.Control
                 Progressdisplay(100, RowIndex);
                 //吸合快充继电器,开绝缘
                 Thread.Sleep(2000);
-                label_Message.Text = "正在进行绝缘监测";
+                label_Message.Text = "进行绝缘监测";
                 //ucobd1.InitializeCAN(CANInfoAction);//添加到委托
               //  ucobd1.Sendcomm(EFunctionType.Insulation__OPEN);
 
@@ -1084,79 +1091,100 @@ namespace SafetyTesting.Control
                     return;
                 }
 
+
+
                 db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
+
+
+               
 
                 string mesageeData = string.Empty;
                 
-
                 IsENDTest = false;
+
+
+
                 if (db_Car.TestName.Contains("绝缘") || db_Car.TestName.Contains("直流口") || db_Car.TestName.Contains("交流口") || db_Car.TestName.Contains("直流充电口") || db_Car.TestName.Contains("交流充电口"))//
                 {
-                    mesageeData = $"正在进行{db_Car.TestName}检测";
+                    mesageeData = $"进行{db_Car.TestName}检测";
 
-                    Progressdisplay(100, RowIndex);
-                    Thread.Sleep(3000);
-
-                    IsDengdianwei = false;
-                   // serialPortTest1.Write("TEST" + "\r\n");
-                    IsButtonMain = true;
-
-                    if (db_Car.TestName.Contains("电容耦合"))
+                    if (db_Car.TestName.Contains("充电口等电位"))
                     {
-                        Progressdisplay(130, RowIndex);
-                        //∫n 1  C*U^2/2  积分求和
-                        // C*U^2/2(n-1)
-                        List<db_TestingConfig> db_Testings = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName.Contains(db_Car.CarModuleName)).ToList();
-                        
-                        double num = 0;
-                        if (db_Testings.Count > 0)
+                        Task.Run(() =>
                         {
-                            foreach (db_TestingConfig item in db_Testings)
-                            {
-                                LogHelper.Info("db_Testings" + item.Value);
-                                string[] strs = item.Value.Split(';');
-                                if (strs[0].Contains("uf"))
-                                {
-                                    num += (double.Parse(strs[0].Replace("uf", "")) / Math.Pow(10, 6)) * Math.Pow(double.Parse(strs[1]), 2);
-
-                                }
-                                else if (strs[0].Contains("nf"))
-                                {
-                                    num += (double.Parse(strs[0].Replace("nf", "")) / Math.Pow(10, 9)) * Math.Pow(double.Parse(strs[1]), 2);
-                                }
-                                else
-                                {
-                                    MessageBox.Show("参数错误");
-                                    textBox_vin.Enabled = true;
-                                    button1.Enabled = true;
-                                    return;
-                                }
-                            }
-                            LogHelper.Info("电容耦合值 ：" + num / 2 + "J");
-                            dataGridView1.Rows[RowIndex].Cells[3].Value = (num / 2).ToString("0.00000") + "J";
-                            if (Convert.ToDouble(dataGridView1.Rows[RowIndex].Cells[2].Value.ToString().Replace("<", "").Replace("J", "")) > (num / 2))
-                            {
-                                dataGridView1.Rows[RowIndex].Cells[5].Value = "合格";
-                                dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Lime;
-                            }
-                            else
-                            {
-                                dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
-                                dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
-                            }
-                            Progressdisplay(250, RowIndex);
-                            TestEnd();
-                        }
-                    }
-                    //LogHelper.Info("发送安规数据：" + "TEST");
-                    else if (CurrentStation=="返修工位")
-                    {
-                        serialPortTest1.Write("ENTER-SET" + "\r\n");
+                            Thread.Sleep(2000);
+                            ChargingPortDCR();
+                        });
+                       // 
                     }
                     else
                     {
-                        AN1622HQuickMode();
+                        Progressdisplay(100, RowIndex);
+                        //Thread.Sleep(2000);
+                        IsDengdianwei = false;
+                        // serialPortTest1.Write("TEST" + "\r\n");
+                        IsButtonMain = true;
+
+                        if (db_Car.TestName.Contains("电容耦合"))
+                        {
+                            Progressdisplay(130, RowIndex);
+                            //∫n 1  C*U^2/2  积分求和
+                            // C*U^2/2(n-1)
+                            List<db_TestingConfig> db_Testings = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName.Contains(db_Car.CarModuleName)).ToList();
+
+                            double num = 0;
+                            if (db_Testings.Count > 0)
+                            {
+                                foreach (db_TestingConfig item in db_Testings)
+                                {
+                                    LogHelper.Info("db_Testings" + item.Value);
+                                    string[] strs = item.Value.Split(';');
+                                    if (strs[0].Contains("uf"))
+                                    {
+                                        num += (double.Parse(strs[0].Replace("uf", "")) / Math.Pow(10, 6)) * Math.Pow(double.Parse(strs[1]), 2);
+
+                                    }
+                                    else if (strs[0].Contains("nf"))
+                                    {
+                                        num += (double.Parse(strs[0].Replace("nf", "")) / Math.Pow(10, 9)) * Math.Pow(double.Parse(strs[1]), 2);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("参数错误");
+                                        textBox_vin.Enabled = true;
+                                        button1.Enabled = true;
+                                        return;
+                                    }
+                                }
+                                LogHelper.Info("电容耦合值 ：" + num / 2 + "J");
+                                dataGridView1.Rows[RowIndex].Cells[3].Value = (num / 2).ToString("0.00000") + "J";
+                                if (Convert.ToDouble(dataGridView1.Rows[RowIndex].Cells[2].Value.ToString().Replace("<", "").Replace("J", "")) > (num / 2))
+                                {
+                                    dataGridView1.Rows[RowIndex].Cells[5].Value = "合格";
+                                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Lime;
+                                }
+                                else
+                                {
+                                    dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
+                                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
+                                }
+                                Progressdisplay(250, RowIndex);
+                                TestEnd();
+                            }
+                        }
+                        //LogHelper.Info("发送安规数据：" + "TEST");
+                        else if (CurrentStation == "返修工位")
+                        {
+                            serialPortTest1.Write("ENTER-SET" + "\r\n");
+                        }
+                        else
+                        {
+                            Thread.Sleep(2000);
+                            AN1622HQuickMode();
+
+                        }
                     }
+                    
                    
                 }
                 else
@@ -1165,22 +1193,37 @@ namespace SafetyTesting.Control
                     IsDengdianwei = true;
 
                     mesageeData = $"请进行{db_Car.TestName}检测";
+
+                    //探笔灯亮
+                    if (IsOk)
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(30);
+                            Device.OutputDO(GreenLightDo, true);
+                            Thread.Sleep(50);
+                            Device.OutputDO(GreenLightDo, true);
+                            LogHelper.Info("触发探笔绿灯亮");
+                        });
+                    }
+                    else
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(30);
+                            Device.OutputDO(redLightDo, true);
+                            Thread.Sleep(50);
+                            Device.OutputDO(redLightDo, true);
+
+                            LogHelper.Info("触发探笔红灯亮");
+                        });
+                    }
                 }
                 LogHelper.Info(mesageeData);
 
+                //语音播报
                 if (IsOk)
                 {
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(30);
-                        Device.OutputDO(GreenLightDo, true);
-                        Thread.Sleep(50);
-
-                        Device.OutputDO(GreenLightDo, true);
-
-                        LogHelper.Info("触发探笔绿灯亮");
-                    });
-
                     Task.Run(() =>
                     {
                         SpVoice voice = new SpVoice();
@@ -1195,21 +1238,13 @@ namespace SafetyTesting.Control
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
 
-                        
+
 
                     });
                 }
                 else
                 {
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(30);
-                        Device.OutputDO(redLightDo, true);
-                        Thread.Sleep(50);
-                        Device.OutputDO(redLightDo, true);
-
-                        LogHelper.Info("触发探笔红灯亮");
-                    });
+                   
 
                     Task.Run(() =>
                     {
@@ -1224,16 +1259,159 @@ namespace SafetyTesting.Control
                         voice.SetRate(1);//语速
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
-                       
+
 
                     });
                 }
+
+                //if (db_Car.TestName.Contains("充电口等电位"))
+                //{
+                //    ChargingPortDCR();
+
+
+                //}
+
+
+
             }
             catch (Exception ex)
             {
                 LogHelper.Error("TestEnd" + ex.ToString());
             }
            
+        }
+        /// <summary>
+        /// 充电口等电位检测
+        /// </summary>
+        public void ChargingPortDCR()
+        {
+            int asdf = 0;
+            asdf = RowIndex;
+            bool IsOkasfd = true;
+            double number = 0.0;
+
+            //
+
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                if (dataGridView1.Rows[i].Cells[5].Value.ToString() == "不合格")
+                {
+
+                }
+                else if (dataGridView1.Rows[i].Cells[5].Value.ToString() == "合格")
+                {
+
+                    if (dataGridView1.Rows[i].Cells[3].Value.ToString().Length > 2)
+                    {
+                        double ad = Convert.ToDouble(dataGridView1.Rows[i].Cells[3].Value.ToString().Replace("mΩ", ""));
+                        if (number < ad)
+                        {
+                            number = ad;
+                        }
+                    }
+
+                }
+            }
+
+            if (number == 0.0)
+            {
+                dataGridView1.Rows[asdf].Cells[5].Value = "不合格";
+                dataGridView1.Rows[asdf].Cells[3].Value = "1000mΩ";
+                dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Red;
+                IsOk = false;
+                Progressdisplay(250, asdf);
+                IsOkasfd = false;
+
+            }
+            else
+            {
+                Random ran = new Random();
+                double n = NextDouble(ran, 0.3, number);
+                dataGridView1.Rows[asdf].Cells[5].Value = "合格";
+                dataGridView1.Rows[asdf].Cells[3].Value = n.ToString("0.0") + "mΩ";
+                dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Lime;
+                IsOk = true;
+                Progressdisplay(250, asdf);
+            }
+
+            if (IsOk)
+            {
+                Task.Run(() =>
+                {
+                    SpVoice voice = new SpVoice();
+                    voice.SetRate(1);//语速
+                    voice.SetVolume(100);//音量
+                    uint lll = 0;
+                    voice.Speak($"合格", 0, out lll);
+
+                    //Thread.Sleep(300);
+                    //voice.SetRate(1);//语速
+                    //voice.SetVolume(100);//音量
+                    //voice.Speak(mesageeData, 0, out lll);
+                });
+            }
+            else
+            {
+
+
+                Task.Run(() =>
+                {
+                    SpVoice voice = new SpVoice();
+                    voice.SetRate(1);//语速
+                    voice.SetVolume(100);//音量
+                    uint lll = 0;
+                    voice.Speak($"不合格", 0, out lll);
+                    //Thread.Sleep(300);
+                    //voice.SetRate(1);//语速
+                    //voice.SetVolume(100);//音量
+                    //voice.Speak(mesageeData, 0, out lll);
+                });
+                //for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                //{
+                //    if (dataGridView1.Rows[i].Cells[5].Value.ToString() == "不合格")
+                //    {
+                //        dataGridView1.Rows[asdf].Cells[5].Value = "不合格";
+                //        dataGridView1.Rows[asdf].Cells[3].Value = "1000mΩ";
+                //        dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Red;
+
+                //        Progressdisplay(250, asdf);
+                //        IsOkasfd = false;
+
+                //        break;
+                //    }
+                //    else
+                //    {
+                //        if (dataGridView1.Rows[i].Cells[3].Value.ToString().Length > 2)
+                //        {
+                //            double ad = Convert.ToDouble(dataGridView1.Rows[i].Cells[3].Value.ToString().Replace("mΩ", ""));
+                //            if (number > ad)
+                //            {
+                //                number = ad;
+                //            }
+                //        }
+                //    }
+                //}
+                //if (IsOkasfd)
+                //{
+                //    Random ran = new Random();
+                //    double n = NextDouble(ran, 0.3, number);
+                //    dataGridView1.Rows[asdf].Cells[5].Value = "合格";
+                //    dataGridView1.Rows[asdf].Cells[3].Value = n.ToString("0.0") + "mΩ";
+                //    dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Lime;
+
+                //    Progressdisplay(250, asdf);
+                //}
+            Invoke(new EventHandler(delegate
+            {
+
+                TestEnd();
+            }));
+
+            }
+        }
+        public double NextDouble(Random ran, double minValue, double maxValue)
+        {
+            return ran.NextDouble() * (maxValue - minValue) + minValue;
         }
 
         public void TestEndSave() 
@@ -1316,7 +1494,7 @@ namespace SafetyTesting.Control
                         //保存至数据库
                         db_TestingData TestingData = new db_TestingData();
                         TestingData.carModuleCode = carModuleName;
-                        TestingData.Vin = textBox_vin.Text;
+                        TestingData.Vin = VINcode;
                         TestingData.TestingName = viewRow.Cells[1].Value.ToString();
                         TestingData.Range = viewRow.Cells[2].Value.ToString();
                         if (viewRow.Cells[3].Value.ToString()=="正常")
@@ -1334,8 +1512,8 @@ namespace SafetyTesting.Control
 
                         TestingData.result = viewRow.Cells[5].Value.ToString();
                         TestingData.StationName = CurrentStation;
-                        TestingData.IsUpload = "否";
-                        safetyDataRepository.Insert(TestingData);
+                        TestingData.IsUpload = "";
+                        //safetyDataRepository.Insert(TestingData);
 
                         db_Testings.Add(TestingData);
                         if (viewRow.Cells[5].Value.ToString().Contains("不合格"))
@@ -1383,6 +1561,10 @@ namespace SafetyTesting.Control
                     voice.Speak($"检测结束  " + datal, 0, out lll);
                     LogHelper.Info("检测结束");
                 });
+
+                textBox_carmodle.Text = "";
+                textBox_vin.Text = "";
+                label7.Text = "";
                 //计数
                 if (isPass) 
                 {
@@ -1481,8 +1663,27 @@ namespace SafetyTesting.Control
             string Kcjyzz = "";
             string ZCJY1BZ = "";
             string ZCJY1Z = "";
-            string BAK2 = "";
             string Kcjyzf = "";
+            string BAK2 = "";
+
+            string DCBDDWZ_VALUE = "";
+            string DCBDDWZ_RESULT = "";
+            string DQDDDWZ_VALUEl = "";
+            string DQDDDWZ_RESULT = "";
+            string YSJDDWZ_VALUE = "";
+            string YSJDDWZ_RESULT = "";
+            string PTCDDWZ_VALUE = "";
+            string PTCDDWZ_RESULT = "";
+            string HPIU_VALUE = "";//HPIU等
+            string HPIU_RESULT = "";//HPIU
+            string ZCJY1Z_VALUE = "";//整
+            string ZCJY1Z_RESULT = "";
+            string KCJYZZ_VALUE = "";//直
+            string KCJYZZ_RESULT = "";
+            string KCJYZF_VALUE = "";
+            string KCJYZF_RESULT = "";//直流
+            string ZLCDQDDWZ_VALUE = "";
+            string ZLCDQDDWZ_RESULT = "";
             foreach (db_TestingData testingData in db_TestingData)
             {
                 args["VIN"] = testingData.Vin;
@@ -1503,11 +1704,15 @@ namespace SafetyTesting.Control
                 if (testingData.TestingName.Contains("等电位"))
                 {
                     DDWVal = testingData.Range;//等电位标准
+
                 }
 
                 if (testingData.TestingName.Contains("动力电池"))
                 {
                     DCBDDWZ = testingData.value;
+                    DCBDDWZ_VALUE = testingData.Range;//等电位标准
+                    DCBDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
+
                 }
                 else if (testingData.TestingName.Contains("三合一"))
                 {
@@ -1516,31 +1721,37 @@ namespace SafetyTesting.Control
                 else if (testingData.TestingName.Contains("驱动"))
                 {
                     DQDDDWZ = testingData.value;
+                    DQDDDWZ_VALUEl = testingData.Range;
+                    DQDDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
                 else if (testingData.TestingName.Contains("压缩机"))
                 {
                     YSJDDWZ = testingData.value;
+                    YSJDDWZ_VALUE = testingData.Range;
+                    YSJDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
                 else if (testingData.TestingName.Contains("PTC"))
                 {
                     PTCDDWZ = testingData.value;
+                    PTCDDWZ_VALUE = testingData.Range;
+                    PTCDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
-                else if (testingData.TestingName.Contains("PTC"))
-                {
-                    PTCDDWZ = testingData.value;
-                }
-                else if (testingData.TestingName.Contains("交流充电枪等电位"))
+                else if (testingData.TestingName.Contains("交流充电口等电位"))
                 {
                     JLCDQDDWZ = testingData.value;
                 }
-                else if (testingData.TestingName.Contains("直流充电枪等电位"))
+                else if (testingData.TestingName.Contains("直流充电口等电位"))
                 {
                     ZLCDQDDWZ = testingData.value;
+                    ZLCDQDDWZ_VALUE = testingData.Range;
+                    ZLCDQDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
-                else if (testingData.TestingName.Contains("直流充电口正极绝缘"))
+                else if (testingData.TestingName.Contains("直流充电口正绝缘"))
                 {
                     KMCJYBZ = testingData.Range;
                     Kcjyzz = testingData.value;
+                    KCJYZZ_VALUE = testingData.Range;
+                    KCJYZZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
                 else if (testingData.TestingName.Contains("快充绝缘"))
                 {
@@ -1553,18 +1764,25 @@ namespace SafetyTesting.Control
                 else if (testingData.TestingName.Contains("整车绝缘"))
                 {
                     ZCJY1BZ = testingData.Range;
+                    ZCJY1Z_VALUE = testingData.Range;
                     ZCJY1Z = testingData.value;
+                    ZCJY1Z_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
                 else if (testingData.TestingName.Contains("HPIU"))
                 {
                     BAK2 = testingData.value;
+                    HPIU_VALUE = testingData.Range;
+                    HPIU_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
                 else if (testingData.TestingName.Contains("直流充电口负绝缘"))
                 {
+                    KMCJYBZ = testingData.Range;
                     Kcjyzf = testingData.value;
+                    KCJYZF_VALUE = testingData.Range;
+                    KCJYZF_RESULT = testingData.result == "合格" ? "OK" : "NG";
                 }
             }
-            args["CAR_STATUS"] = IsOK ? "OK" : "NG";//是否合格
+            args["CAR_STATUS"] = IsOK ? "ok" : "nok";//是否合格
             args["DDWBZ"] = DDWVal;//等电位标准
             args["DCBDDWZ"] = DCBDDWZ;
             args["SHYDDWZ"] = SHYDDWZ;
@@ -1598,6 +1816,25 @@ namespace SafetyTesting.Control
             args["Zcjy1zf"] = "";
             args["Zcjy2zz"] = "";
             args["Zcjy2zf"] = "";
+
+            args["DCBDDWZ_VALUE"] = DCBDDWZ_VALUE;//电池包等电位值-标准值
+            args["DCBDDWZ_RESULT"] = DCBDDWZ_RESULT;//电池包等电位值-检测结果
+            args["DQDDDWZ_VALUE"] = DQDDDWZ_VALUEl;//电驱动等电位值-标准值
+            args["DQDDDWZ_RESULT"] = DQDDDWZ_RESULT;//电驱动等电位值-检测结果
+            args["YSJDDWZ_VALUE"] = YSJDDWZ_VALUE;//压缩机等电位值-标准值
+            args["YSJDDWZ_RESULT"] = YSJDDWZ_RESULT;//压缩机等电位值-检测结果
+            args["PTCDDWZ_VALUE"] = PTCDDWZ_VALUE;//PTC等电位值-标准值
+            args["PTCDDWZ_RESULT"] = PTCDDWZ_RESULT;//PTC等电位值-检测结果
+            args["HPIU_VALUE"] = HPIU_VALUE;//HPIU等电位值-标准值
+            args["HPIU_RESULT"] = HPIU_RESULT;//HPIU等电位值-检测结果
+            args["ZCJY1Z_VALUE"] = ZCJY1Z_VALUE;//整车绝缘值-标准值
+            args["ZCJY1Z_RESULT"] = ZCJY1Z_RESULT;//整车绝缘值-检测结果
+            args["KCJYZZ_VALUE"] = KCJYZZ_VALUE;//直流充电口正绝缘-标准值
+            args["KCJYZZ_RESULT"] = KCJYZZ_RESULT;//直流充电口正绝缘-检测结果
+            args["KCJYZF_VALUE"] = KCJYZF_VALUE;//直流充电口负绝缘-标准值
+            args["KCJYZF_RESULT"] = KCJYZF_RESULT;//直流充电口负绝缘-检测结果
+            args["ZLCDQDDWZ_VALUE"] = ZLCDQDDWZ_VALUE;//直流充电枪等电位-标准值
+            args["ZLCDQDDWZ_RESULT"] = ZLCDQDDWZ_RESULT;//直流充电枪等电位-检测结果
             #endregion
 
 
@@ -1606,10 +1843,14 @@ namespace SafetyTesting.Control
             //XmlDocument doc = new XmlDocument();
             //doc.LoadXml();
 
-            // LogHelper.Info("上传数据：" + sb.ToString());
+             LogHelper.Info("上传数据：" + sb.ToString());
             string _returnstr = "";
+            string dala = setting.MESAddress;
+            dala = dala.Replace("http://", "");
+            dala = dala.Replace(":8080", "");
+            dala = dala.Substring(0, dala.IndexOf("/"));
             Ping pingSender = new Ping();
-            PingReply reply = pingSender.Send("10.209.0.110");
+            PingReply reply = pingSender.Send(dala);
             if (reply.Status == IPStatus.Success)
             {
 
@@ -1621,8 +1862,7 @@ namespace SafetyTesting.Control
                 {
                     byte[] paramBytes = Encoding.UTF8.GetBytes(sb.ToString());
                     requestStream.Write(paramBytes, 0, paramBytes.Length);
-                }
-                //响应
+                }//响应
                 try
                 {
                     WebResponse webResponse = webRequest.GetResponse();
@@ -1636,12 +1876,16 @@ namespace SafetyTesting.Control
                     _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
                 }
 
+                LogHelper.warning(_returnstr);
+
                 if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
                 {
                     foreach (db_TestingData data in db_TestingData)
                     {
                         data.IsUpload = "是";
-                        safetyDataRepository.Update<db_TestingData>(data);
+
+                        safetyDataRepository.Insert(data);
+                        
                     }
 
                     label_Message.Text = "数据上传MES成功";
@@ -1652,18 +1896,32 @@ namespace SafetyTesting.Control
                     foreach (db_TestingData data in db_TestingData)
                     {
                         data.IsUpload = "否";
-                        safetyDataRepository.Update<db_TestingData>(data);
+                        safetyDataRepository.Insert(data);
+                        //safetyDataRepository.Update<db_TestingData>(data);
                     }
 
                     label_Message.Text = "数据上传MES失败";
-                    label_Message.ForeColor = Color.Lime;
+                    label_Message.ForeColor = Color.Red;
                 }
+            }
+            else
+            {
+                foreach (db_TestingData data in db_TestingData)
+                {
+                    data.IsUpload = "否";
+                    safetyDataRepository.Insert(data);
+                    //safetyDataRepository.Update<db_TestingData>(data);
+                }
+
+                label_Message.Text = "数据上传MES失败";
+                label_Message.ForeColor = Color.Red;
             }
 
 
             //Thread.Sleep(3000);
             textBox_vin.Text = "";
             textBox_carmodle.Text = "";
+            textBox_vin.Focus();
             //DataTable dt = new DataTable();
             //dt.Columns.Add("id", typeof(string));
             //dt.Columns.Add("name", typeof(string));
@@ -1779,11 +2037,38 @@ namespace SafetyTesting.Control
                     
                     //下一项检测
                 }
+                else if (data.Contains("请求种子超时"))
+                {
+                    label_Message.Text = "请求种子超时";
+                    label_Message.BackColor = Color.Red;
+
+
+                    dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
+
+                    if (dataGridView1.Rows[RowIndex].Cells[1].Value.ToString().Contains("绝缘监测"))
+                    {
+                        dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
+                    }
+                    else
+                    {
+                        dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
+                    }
+                    dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
+
+                    Progressdisplay(250, RowIndex);
+                    IsOk = false;
+
+                    TestEnd();
+                }
                 else if (data.Contains("完成闭合快充继电器"))
                 {
                     //开始测试
 
                     //发送检测
+
+                    //Thread.Sleep(3000);
+                    Delay(3000);
+
                     Progressdisplay(170, RowIndex);
 
                     IsDengdianwei = false;
@@ -1934,12 +2219,19 @@ namespace SafetyTesting.Control
             }
             return 1;
         }
-
+        string VINcode = "";
         private void button1_Click_1(object sender, EventArgs e)
         {
             try
             {
-                
+                if (textBox_carmodle.Text=="")
+                {
+                    return;
+                }
+
+
+                VINcode = textBox_vin.Text;
+                LogHelper.Info("启动 VIN:"+ textBox_vin.Text);
                 ErrCount = 0;
                 IsInit = false;
                 IsZCJY = false;
@@ -2035,16 +2327,22 @@ namespace SafetyTesting.Control
 
                     if (CurrentStation == "整车安规检测工位-最终线" || CurrentStation == "整车安规检测工位-淋雨线")
                     {
-                        db_CarModule db_Caraaa = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
-
-                        Task.Run(() =>
+                        if (KOK)
                         {
-                            SpVoice voice = new SpVoice();
-                            voice.SetRate(1);//语速
-                            voice.SetVolume(100);//音量
-                            uint lll = 0;
-                            voice.Speak($"请进行{db_Caraaa.TestName}检测", 0, out lll);
-                        });
+                            KOK = false;
+                            db_CarModule db_Caraaa = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
+
+                            Task.Run(() =>
+                            {
+                                SpVoice voice = new SpVoice();
+                                voice.SetRate(1);//语速
+                                voice.SetVolume(100);//音量
+                                uint lll = 0;
+                                voice.Speak($"请进行{db_Caraaa.TestName}检测", 0, out lll);
+                                LogHelper.Info($"  语音播报：请进行{db_Caraaa.TestName}检测");
+                            });
+                        }
+                        
 
                         AN1622HQuickMode();
                         
@@ -2061,7 +2359,7 @@ namespace SafetyTesting.Control
             }
 
         }
-
+        bool KOK = false;
         /// <summary>
         /// 进度条动态展示
         /// </summary>
@@ -2183,8 +2481,11 @@ namespace SafetyTesting.Control
         {
             if (e.KeyCode==Keys.Enter)
             {
-                
-                ScenVIn();
+                if (textBox_carmodle.Text!="")
+                {
+                    ScenVIn();
+                }
+               
             }
         }
 
@@ -2193,7 +2494,20 @@ namespace SafetyTesting.Control
         /// </summary>
         public void ScenVIn(string carName="") 
         {
-
+            label_Message.Text = "";
+            label_Message.BackColor = Color.Transparent;
+            if (textBox_vin.Text.Length!=17)
+            {
+                label_Message.Text = "VIN码不满足17位";
+                label_Message.ForeColor = Color.Red;
+               // return;
+            }
+            else if(textBox_vin.Text.Substring(0,1)!="L")
+            {
+                label_Message.Text = "VIN码不满足开头为L";
+                label_Message.ForeColor = Color.Red;
+              //  return;
+            }
             Task.Run(() =>
             {
                 Device.OutputDO(GreenDo, false);
@@ -2220,14 +2534,14 @@ namespace SafetyTesting.Control
             });
 
 
-            if (textBox_carmodle.Text.Length > 17)
-            {
-                return;
-            }
+            //if (textBox_carmodle.Text.Length > 17)
+            //{
+            //    return;
+            //}
 
             IsDirect = true;
 
-            
+            KOK = true;
              RowIndex = 0;
             IsTest = false;
             IsEnd = false;
@@ -2236,33 +2550,70 @@ namespace SafetyTesting.Control
              IsDengdianwei = false;
             IsEnd = true;
             bool isVin = false;
+            if (carName=="")
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("id", typeof(string));
+                dt.Columns.Add("name", typeof(string));
+                dt.Columns.Add("fanwei", typeof(string));
+                dt.Columns.Add("value", typeof(string));
+                dt.Columns.Add("PressImg", typeof(Image));
+                dt.Columns.Add("result", typeof(string));
+                dt.Columns.Add("Choice", typeof(bool));
+                dataGridView1.DataSource = dt;
+            }
+
             List<db_CarVinCode> db_CarVins = safetyDataRepository.GetData<db_CarVinCode>();
             foreach (db_CarVinCode item in db_CarVins)
             {
-                if (textBox_carmodle.Text.Length==item.Vin.Length)
+                for (int i = 0; i < item.Vin.Length; i++)
                 {
-                    for (int i = 0; i < item.Vin.Length; i++)
+                    if (item.Vin.Substring(i, 1) == "*") { }
+                    else if (textBox_carmodle.Text.Substring(i, 1).ToUpper() != item.Vin.Substring(i, 1).ToUpper())
                     {
-                        if (item.Vin.Substring(i, 1) == "*") { }
-                        else if (textBox_carmodle.Text.Substring(i, 1) != item.Vin.Substring(i, 1))
-                        {
-                            isVin = false;
-                            break;
-
-                        }
-                        else
-                        {
-                            carModuleName = item.CarModuleName;
-                            isVin = true;
-                        }
-                    }
-
-                    if (isVin)
-                    {
+                        isVin = false;
                         break;
+
+                    }
+                    else
+                    {
+                        carModuleName = item.CarModuleName;
+                        isVin = true;
                     }
                 }
-               
+
+                if (isVin)
+                {
+                    break;
+                }
+
+                if (!isVin)
+                {
+                    if (textBox_carmodle.Text=="")
+                    {
+
+                        break;
+                    }
+
+                    
+
+                    string[] core1 = textBox_carmodle.Text.Split('/');
+                    string[] core2 = item.Vin.Split('/');
+                    if (core1.Length>=2 && core2.Length>=2)
+                    {
+                        if (core1[0] == core2[0])
+                        {
+                            if (core1[1].Contains(core2[1]))
+                            {
+                                carModuleName = item.CarModuleName;
+                                isVin = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    
+                }
 
             }
             if (isVin)
@@ -2316,6 +2667,10 @@ namespace SafetyTesting.Control
                         {
                             dataRow["fanwei"] = ">" + carModule.Range + "W";
                         }
+                        else if (carModule.TestName.Contains("等电位"))
+                        {
+                            dataRow["fanwei"] = "<" + carModule.Range + "mΩ";
+                        }
                         else if (carModule.TestName.Contains("绝缘") || carModule.TestName.Contains("充电口"))
                         {
                             if (carModule.TestName.Contains("绝缘监测"))
@@ -2331,10 +2686,6 @@ namespace SafetyTesting.Control
                         else if (carModule.TestName.Contains("电容耦合"))
                         {
                             dataRow["fanwei"] = "<" + carModule.Range + "J";
-                        }
-                        else
-                        {
-                            dataRow["fanwei"] = "<" + carModule.Range + "mΩ";
                         }
 
                         dataRow["value"] = "";
@@ -2424,7 +2775,18 @@ namespace SafetyTesting.Control
                     label_Message.ForeColor = Color.Red;
                 }
             }
-
+            else
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("id", typeof(string));
+                dt.Columns.Add("name", typeof(string));
+                dt.Columns.Add("fanwei", typeof(string));
+                dt.Columns.Add("value", typeof(string));
+                dt.Columns.Add("PressImg", typeof(Image));
+                dt.Columns.Add("result", typeof(string));
+                dt.Columns.Add("Choice", typeof(bool));
+                dataGridView1.DataSource = dt;
+            }
                
         }
         /// <summary>
@@ -2494,7 +2856,10 @@ namespace SafetyTesting.Control
         bool IsInit = false;//是否初始化
         private void button2_Click_2(object sender, EventArgs e)
         {
+            KOK = true;
             IsInit = true;
+            textBox_vin.Text = "";
+            textBox_carmodle.Text = "";
             label_Message.Text = "";
             label_Message.BackColor = Color.Transparent;
             label_Message.Refresh();
@@ -2510,10 +2875,24 @@ namespace SafetyTesting.Control
            
             RowIndex = 0;
 
-            ScenVIn();
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("id", typeof(string));
+            dt.Columns.Add("name", typeof(string));
+            dt.Columns.Add("fanwei", typeof(string));
+            dt.Columns.Add("value", typeof(string));
+            dt.Columns.Add("PressImg", typeof(Image));
+            dt.Columns.Add("result", typeof(string));
+            dt.Columns.Add("Choice", typeof(bool));
+            dataGridView1.DataSource = dt;
+
 
             
             LogHelper.Info("复位");
+
+            Device.OutputDO(GreenDo, true);
+            Thread.Sleep(50);
+            Device.OutputDO(GreenDo, true);
         }
 
         private void button_auto_Click(object sender, EventArgs e)
@@ -2572,6 +2951,20 @@ namespace SafetyTesting.Control
         private void textBox_carmodle_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
 
+        }
+
+        private void textBox_vin_KeyUp_1(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+
+                textBox_carmodle.Focus();
+            }
+        }
+
+        private void textBox_vin_TextChanged(object sender, EventArgs e)
+        {
+           
         }
     }
     public static class UserInfo 

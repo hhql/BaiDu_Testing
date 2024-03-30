@@ -23,6 +23,10 @@ using Microsoft.CSharp;
 using System.Reflection;
 using System.Web.Services.Description;
 using System.ServiceModel;
+using SpeechLib;
+using System.Speech.Synthesis;
+using System.Speech.Recognition;
+using System.Threading.Tasks;
 
 namespace TestApp
 {
@@ -32,67 +36,81 @@ namespace TestApp
         private static System.IO.Ports.SerialPort serialPortTest;
 
         private static System.IO.Ports.SerialPort serialPortTest1;
+
+        public static double NextDouble(Random ran, double minValue, double maxValue)
+        {
+            return ran.NextDouble() * (maxValue - minValue) + minValue;
+        }
         static void Main(string[] args)
         {
-
-            ManagementClass mc = new ManagementClass("Win32_Processor");
-            ManagementObjectCollection moc = mc.GetInstances();
-            string strID = null;
-            foreach (ManagementObject mo in moc)
+            string asd = "123";
+            string asd2 = "4567";
+            if (asd.Length==3 && asd2.Length==3)
             {
-                strID = mo.Properties["ProcessorId"].Value.ToString();
-                break;
+
             }
-            Console.WriteLine(strID);
-            return;
-            uint seed = Convert.ToUInt32("0C0C0C0C", 16);
-            uint ukey = canculate_app_security_access_xxx(seed);//86dc90f
-            string strKey = ukey.ToString("X8");
+
+            Random ran = new Random();
+            double n = NextDouble(ran, 0.3, 1.8);
+            string asdfa = n.ToString("0.0");
+
+            Task.Run(() =>
+            {
+                SpeechSynthesizer synth = new SpeechSynthesizer();
+                synth.Rate = 0;
+                synth.Volume = 100;
+                synth.SelectVoice("VW TV Lily");
+                string strNotionce = string.Empty;
+
+                strNotionce = "请拣单号 ";
+                synth.Speak(strNotionce);
+                System.Threading.Thread.Sleep(100);
+            });
             
-            string normalizedKeys = string.Join(" ", Regex.Matches(strKey, @"..").Cast<Match>().ToList());
 
 
 
 
 
 
-           // double F1 = 0.44 / Math.Pow(10, 6);
-           // double F2 = 0.0066 / Math.Pow(10, 6);
-           // double F3 = 10 / Math.Pow(10, 9);
-           // Console.WriteLine(F1+","+ F2 + ","+ F3 + ",");
-           // double num=F1* Math.Pow(336, 2) + F2* Math.Pow(336, 2) + F3* Math.Pow(336, 2);
-           // Console.WriteLine(num);
-           // Console.WriteLine(num/2);
-           // return;
-           // uint[] send = { 0xB2,0xD3, 0xB2, 0xD3 };
-           //uint key= seedToKey(send);
-           // string strKey = key.ToString("X2");
-           // Console.WriteLine("种子== 0xB2,0xD3, 0xB2, 0xD3");
-           // string normalizedKeys = string.Join(" ", Regex.Matches(strKey, @"..").Cast<Match>().ToList());
-           // Console.WriteLine("解密的密钥 =" + normalizedKeys);
-           // return;
-           // string str = ">0.00GOhm";
+
+            // double F1 = 0.44 / Math.Pow(10, 6);
+            // double F2 = 0.0066 / Math.Pow(10, 6);
+            // double F3 = 10 / Math.Pow(10, 9);
+            // Console.WriteLine(F1+","+ F2 + ","+ F3 + ",");
+            // double num=F1* Math.Pow(336, 2) + F2* Math.Pow(336, 2) + F3* Math.Pow(336, 2);
+            // Console.WriteLine(num);
+            // Console.WriteLine(num/2);
+            // return;
+            // uint[] send = { 0xB2,0xD3, 0xB2, 0xD3 };
+            //uint key= seedToKey(send);
+            // string strKey = key.ToString("X2");
+            // Console.WriteLine("种子== 0xB2,0xD3, 0xB2, 0xD3");
+            // string normalizedKeys = string.Join(" ", Regex.Matches(strKey, @"..").Cast<Match>().ToList());
+            // Console.WriteLine("解密的密钥 =" + normalizedKeys);
+            // return;
+            // string str = ">0.00GOhm";
 
 
-           // string result = Regex.Replace(str, @"[^\d.\d]", "");
-           // double asdkfasf = Convert.ToDouble(result);
-           // int fasfa = Convert.ToInt32(result);
-           // Console.WriteLine(result);
-           // string datad= WordToNumber("三");
+            // string result = Regex.Replace(str, @"[^\d.\d]", "");
+            // double asdkfasf = Convert.ToDouble(result);
+            // int fasfa = Convert.ToInt32(result);
+            // Console.WriteLine(result);
+            // string datad= WordToNumber("三");
 
-           // Console.WriteLine("");
+            // Console.WriteLine("");
 
-           // serialPortTest = new System.IO.Ports.SerialPort();
-           // serialPortTest.DataReceived += SerialPortTest_DataReceived;
-           // serialPortTest.BaudRate = 19200;
-           // serialPortTest.PortName = "COM3";
+            // serialPortTest = new System.IO.Ports.SerialPort();
+            // serialPortTest.DataReceived += SerialPortTest_DataReceived;
+            // serialPortTest.BaudRate = 19200;
+            // serialPortTest.PortName = "COM3";
 
-           //   serialPortTest.Open();
-           // while (true)
-           // {
-           //     asdf = Console.ReadKey().Key.ToString();
-           //     Console.WriteLine(asdf);
-           // }
+            //   serialPortTest.Open();
+            // while (true)
+            // {
+            //     asdf = Console.ReadKey().Key.ToString();
+            //     Console.WriteLine(asdf);
+            // }
 
 
             Console.WriteLine();

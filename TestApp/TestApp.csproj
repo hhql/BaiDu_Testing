@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +14,14 @@
     <PackageReference Include="System.ServiceModel.Http" Version="4.7.*" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.7.*" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.7.*" />
+    <PackageReference Include="System.Speech" Version="7.0.0" />
     <PackageReference Include="System.Web.Services.Description" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.SpeechLib">
+      <HintPath>..\SafetyTesting\obj\Debug\netcoreapp3.1\Interop.SpeechLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

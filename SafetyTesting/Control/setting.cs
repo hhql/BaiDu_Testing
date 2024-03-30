@@ -447,21 +447,33 @@ namespace SafetyTesting.Control
         {
             try
             {
+                string dala =MESAddress;
+                dala = dala.Replace("http://", "");
+                dala = dala.Replace(":8080", "");
+                dala = dala.Substring(0, dala.IndexOf("/"));
                 Ping pingSender = new Ping();
-                PingReply reply = pingSender.Send("10.209.0.110");
+                PingReply reply = pingSender.Send(dala);
                 if (reply.Status != IPStatus.Success)
                 {
                     LogHelper.warning("自动上传MES失败");
                     return;
                 }
 
-                //查询前20 条未上传数据
-                List<db_TestingData> db_TestingDatas = safetyDataRepository.GetData<db_TestingData>().Where(x => x.IsUpload == "否").ToList();
-                db_TestingDatas = db_TestingDatas.Where((x, i) => db_TestingDatas.FindIndex(z => z.CreateTime == x.CreateTime) == i).Take(20).ToList();//添加时间去重
+                
 
-                LogHelper.Info("查询数据：" + db_TestingDatas.Count+" 条");
+                //查询前20 条未上传数据
+                List<db_TestingData> db_TestingDatas = safetyDataRepository.GetData<db_TestingData>().Where(x => x.IsUpload == "否" || x.IsUpload=="").ToList();
+                db_TestingDatas = db_TestingDatas.Where((x, i) => db_TestingDatas.FindIndex(z => z.CreateTime == x.CreateTime) == i).Take(20).ToList();//添加时间去重
+                if (db_TestingDatas.Count>0)
+                {
+
+                    
+                }
+                
                 foreach (db_TestingData item in db_TestingDatas)
                 {
+                    LogHelper.Info("自动上传数据 VIN："+item.Vin);
+
                     //HttpClient httpClient = new HttpClient() { };
                     //StringBuilder contentString = new StringBuilder();
                     //String meothName = "saveAG";   //服务的方法名
@@ -469,7 +481,7 @@ namespace SafetyTesting.Control
 
                     List<db_TestingData> db_TestingData = safetyDataRepository.GetData<db_TestingData>().Where(x => x.CreateTime == item.CreateTime && x.Vin == item.Vin).ToList();
 
-                    LogHelper.Info("查询数据db_TestingData：" + db_TestingData.Count + " 条");
+                    //LogHelper.Info("查询数据db_TestingData：" + db_TestingData.Count + " 条");
                     #region 上传数据
 
                     bool IsOK = true;
@@ -487,8 +499,28 @@ namespace SafetyTesting.Control
                     string Kcjyzz = "";
                     string ZCJY1BZ = "";
                     string ZCJY1Z = "";
-                    string BAK2 = "";
                     string Kcjyzf = "";
+                    string BAK2 = "";
+
+                    string DCBDDWZ_VALUE = "";
+                    string DCBDDWZ_RESULT="";
+                    string DQDDDWZ_VALUEl="";
+                    string DQDDDWZ_RESULT="";
+                    string YSJDDWZ_VALUE = "";
+                    string YSJDDWZ_RESULT = "";
+                    string PTCDDWZ_VALUE="";
+                    string PTCDDWZ_RESULT="";
+                   string HPIU_VALUE="";//HPIU等
+                   string HPIU_RESULT="";//HPIU
+                   string ZCJY1Z_VALUE="";//整
+                   string ZCJY1Z_RESULT="";
+                   string  KCJYZZ_VALUE="";//直
+                   string KCJYZZ_RESULT="";
+                    string KCJYZF_VALUE="";
+                   string KCJYZF_RESULT = "";//直流
+                    string ZLCDQDDWZ_VALUE = "";
+                    string ZLCDQDDWZ_RESULT = "";
+
                     foreach (db_TestingData testingData in db_TestingData)
                     {
                         args["VIN"] = testingData.Vin;
@@ -508,12 +540,16 @@ namespace SafetyTesting.Control
                         }
                         if (testingData.TestingName.Contains("等电位"))
                         {
-                            DDWVal = testingData.Range;//等电位标准
+                            //DDWVal = testingData.Range;//等电位标准
+                            
                         }
 
                         if (testingData.TestingName.Contains("动力电池"))
                         {
                             DCBDDWZ = testingData.value;
+                            DCBDDWZ_VALUE = testingData.Range;//等电位标准
+                            DCBDDWZ_RESULT = testingData.result=="合格"?"OK":"NG";
+
                         }
                         else if (testingData.TestingName.Contains("三合一"))
                         {
@@ -522,31 +558,37 @@ namespace SafetyTesting.Control
                         else if (testingData.TestingName.Contains("驱动"))
                         {
                             DQDDDWZ = testingData.value;
+                            DQDDDWZ_VALUEl = testingData.Range;
+                            DQDDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                         }
                         else if (testingData.TestingName.Contains("压缩机"))
                         {
                             YSJDDWZ = testingData.value;
+                            YSJDDWZ_VALUE = testingData.Range;
+                            YSJDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                         }
                         else if (testingData.TestingName.Contains("PTC"))
                         {
                             PTCDDWZ = testingData.value;
+                            PTCDDWZ_VALUE = testingData.Range;
+                            PTCDDWZ_RESULT = testingData.result == "合格" ? "OK" : "NG";
                         }
-                        else if (testingData.TestingName.Contains("PTC"))
-                        {
-                            PTCDDWZ = testingData.value;
-                        }
-                        else if (testingData.TestingName.Contains("交流充电枪等电位"))
+                        else if (testingData.TestingName.Contains("交流充电口等电位"))
                         {
                             JLCDQDDWZ = testingData.value;
                         }
-                        else if (testingData.TestingName.Contains("直流充电枪等电位"))
+                        else if (testingData.TestingName.Contains("直流充电口等电位"))
                         {
                             ZLCDQDDWZ = testingData.value;
+                            ZLCDQDDWZ_VALUE = testingData.Range;
+                            ZLCDQDDWZ_RESULT= testingData.result == "合格" ? "OK" : "NG";
                         }
-                        else if (testingData.TestingName.Contains("直流充电口正极绝缘"))
+                        else if (testingData.TestingName.Contains("直流充电口正绝缘"))
                         {
                             KMCJYBZ = testingData.Range;
                             Kcjyzz = testingData.value;
+                            KCJYZZ_VALUE = testingData.Range;
+                            KCJYZZ_RESULT= testingData.result == "合格" ? "OK" : "NG";
                         }
                         else if (testingData.TestingName.Contains("快充绝缘"))
                         {
@@ -559,18 +601,25 @@ namespace SafetyTesting.Control
                         else if (testingData.TestingName.Contains("整车绝缘"))
                         {
                             ZCJY1BZ = testingData.Range;
+                            ZCJY1Z_VALUE= testingData.Range;
                             ZCJY1Z = testingData.value;
+                            ZCJY1Z_RESULT=testingData.result == "合格" ? "OK" : "NG";
                         }
                         else if (testingData.TestingName.Contains("HPIU"))
                         {
                             BAK2 = testingData.value;
+                            HPIU_VALUE = testingData.Range;
+                            HPIU_RESULT = testingData.result == "合格" ? "OK" : "NG";
                         }
                         else if (testingData.TestingName.Contains("直流充电口负绝缘"))
                         {
+                            KMCJYBZ = testingData.Range;
                             Kcjyzf = testingData.value;
+                            KCJYZF_VALUE= testingData.Range;
+                            KCJYZF_RESULT = testingData.result == "合格" ? "OK" : "NG";
                         }
                     }
-                    args["CAR_STATUS"] = IsOK ? "OK" : "NG";//是否合格
+                    args["CAR_STATUS"] = IsOK ? "ok" : "nok";//是否合格
                     args["DDWBZ"] = DDWVal;//等电位标准
                     args["DCBDDWZ"] = DCBDDWZ;
                     args["SHYDDWZ"] = SHYDDWZ;
@@ -604,6 +653,25 @@ namespace SafetyTesting.Control
                     args["Zcjy1zf"] = "";
                     args["Zcjy2zz"] = "";
                     args["Zcjy2zf"] = "";
+
+                    args["DCBDDWZ_VALUE"] = DCBDDWZ_VALUE;//电池包等电位值-标准值
+                    args["DCBDDWZ_RESULT"] = DCBDDWZ_RESULT;//电池包等电位值-检测结果
+                    args["DQDDDWZ_VALUE"] = DQDDDWZ_VALUEl;//电驱动等电位值-标准值
+                    args["DQDDDWZ_RESULT"] = DQDDDWZ_RESULT;//电驱动等电位值-检测结果
+                    args["YSJDDWZ_VALUE"] = YSJDDWZ_VALUE;//压缩机等电位值-标准值
+                    args["YSJDDWZ_RESULT"] = YSJDDWZ_RESULT;//压缩机等电位值-检测结果
+                    args["PTCDDWZ_VALUE"] = PTCDDWZ_VALUE;//PTC等电位值-标准值
+                    args["PTCDDWZ_RESULT"] = PTCDDWZ_RESULT;//PTC等电位值-检测结果
+                    args["HPIU_VALUE"] = HPIU_VALUE;//HPIU等电位值-标准值
+                    args["HPIU_RESULT"] = HPIU_RESULT;//HPIU等电位值-检测结果
+                    args["ZCJY1Z_VALUE"] = ZCJY1Z_VALUE;//整车绝缘值-标准值
+                    args["ZCJY1Z_RESULT"] = ZCJY1Z_RESULT;//整车绝缘值-检测结果
+                    args["KCJYZZ_VALUE"] = KCJYZZ_VALUE;//直流充电口正绝缘-标准值
+                    args["KCJYZZ_RESULT"] = KCJYZZ_RESULT;//直流充电口正绝缘-检测结果
+                    args["KCJYZF_VALUE"] = KCJYZF_VALUE;//直流充电口负绝缘-标准值
+                    args["KCJYZF_RESULT"] = KCJYZF_RESULT;//直流充电口负绝缘-检测结果
+                    args["ZLCDQDDWZ_VALUE"] = ZLCDQDDWZ_VALUE;//直流充电枪等电位-标准值
+                    args["ZLCDQDDWZ_RESULT"] = ZLCDQDDWZ_RESULT;//直流充电枪等电位-检测结果
                     #endregion
 
 
@@ -639,10 +707,10 @@ namespace SafetyTesting.Control
                         {
                             _returnstr = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
                         }
-                        
 
+                   LogHelper.warning("自动上传：" + _returnstr);
 
-                        if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
+                    if (_returnstr.Contains("<ax211:type>S</ax211:type>"))
                         {
                             foreach (db_TestingData data in db_TestingData)
                             {
