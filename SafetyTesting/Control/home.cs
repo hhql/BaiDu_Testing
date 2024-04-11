@@ -593,9 +593,9 @@ namespace SafetyTesting.Control
             LogHelper.warning("打开安规连接检测"+ timer_anguiConn.Enabled);
         }
 
-       
 
-       
+
+        bool Iszcjy = false;
         CarModuleType carModuleType = CarModuleType.D180;
         public void AN1622HQuickMode() 
         {
@@ -814,7 +814,7 @@ namespace SafetyTesting.Control
                     //    Thread.Sleep(2500);
                     //}
                     label_Message.Text = "读取故障码....";
-                    label_Message.BackColor = Color.Navy;
+                    label_Message.ForeColor = Color.White;
                     label_Message.Refresh();
                   // Thread.Sleep(30000);
                     Delay(30000);
@@ -854,8 +854,42 @@ namespace SafetyTesting.Control
                 string str = string.Empty;
                 db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
                 
+
+
+
+
                  if (db_Car.TestName.Contains("整车绝缘"))
                 {
+                    string result123 = string.Empty;
+                    //RD 0,15,1,0.0s,,0.0mOhm
+                    result123 = Regex.Replace(strs[1], @"[^\d.\d]", "");
+                    if (Convert.ToInt32(result123) == 0) 
+                    {
+                        //错误
+
+                        if (!Iszcjy)
+                        {
+                            Iszcjy = true;
+                            if (Convert.ToInt32(result123) == 0)
+                            {
+                                Delay(3000);
+
+                                Progressdisplay(170, RowIndex);
+
+                                IsDengdianwei = false;
+                                DBTestingConfig = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName == "BAT配置").FirstOrDefault();
+                                string[] st = DBTestingConfig.Value.Split(';');
+
+                                // Progressdisplay(110, RowIndex);
+                                home.serialPortTest1.Write("SET-BAT 0.00,1.0," + st[0] + ".0,500,200," + "\r\n");
+                                // Progressdisplay(130, RowIndex);
+                                LogHelper.Info("设置整车绝缘检测：SET-BAT 0.00,1.00," + st[0] + ",500,200," + "\r\n");
+                                return;
+                            }
+                        }
+                    }
+                        
+                    
                     ucobd1.Sendcomm(EFunctionType.VehicleRelay_CLOSE, carModuleType);
                 }
 
@@ -1115,7 +1149,7 @@ namespace SafetyTesting.Control
                             Thread.Sleep(2000);
                             ChargingPortDCR();
                         });
-                       // 
+                        
                     }
                     else
                     {
@@ -1221,9 +1255,11 @@ namespace SafetyTesting.Control
                 }
                 LogHelper.Info(mesageeData);
 
+
                 //语音播报
                 if (IsOk)
                 {
+                    LogHelper.Info("语音播报合格");
                     Task.Run(() =>
                     {
                         SpVoice voice = new SpVoice();
@@ -1238,13 +1274,13 @@ namespace SafetyTesting.Control
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
 
-
+                        
 
                     });
                 }
                 else
                 {
-                   
+                    LogHelper.Info("语音播报不合格");
 
                     Task.Run(() =>
                     {
@@ -1260,7 +1296,7 @@ namespace SafetyTesting.Control
                         voice.SetVolume(100);//音量
                         voice.Speak(mesageeData, 0, out lll);
 
-
+                        
                     });
                 }
 
@@ -1334,80 +1370,14 @@ namespace SafetyTesting.Control
                 Progressdisplay(250, asdf);
             }
 
-            if (IsOk)
-            {
-                Task.Run(() =>
-                {
-                    SpVoice voice = new SpVoice();
-                    voice.SetRate(1);//语速
-                    voice.SetVolume(100);//音量
-                    uint lll = 0;
-                    voice.Speak($"合格", 0, out lll);
-
-                    //Thread.Sleep(300);
-                    //voice.SetRate(1);//语速
-                    //voice.SetVolume(100);//音量
-                    //voice.Speak(mesageeData, 0, out lll);
-                });
-            }
-            else
-            {
+           
 
 
-                Task.Run(() =>
-                {
-                    SpVoice voice = new SpVoice();
-                    voice.SetRate(1);//语速
-                    voice.SetVolume(100);//音量
-                    uint lll = 0;
-                    voice.Speak($"不合格", 0, out lll);
-                    //Thread.Sleep(300);
-                    //voice.SetRate(1);//语速
-                    //voice.SetVolume(100);//音量
-                    //voice.Speak(mesageeData, 0, out lll);
-                });
-                //for (int i = 0; i < dataGridView1.Rows.Count; i++)
-                //{
-                //    if (dataGridView1.Rows[i].Cells[5].Value.ToString() == "不合格")
-                //    {
-                //        dataGridView1.Rows[asdf].Cells[5].Value = "不合格";
-                //        dataGridView1.Rows[asdf].Cells[3].Value = "1000mΩ";
-                //        dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Red;
-
-                //        Progressdisplay(250, asdf);
-                //        IsOkasfd = false;
-
-                //        break;
-                //    }
-                //    else
-                //    {
-                //        if (dataGridView1.Rows[i].Cells[3].Value.ToString().Length > 2)
-                //        {
-                //            double ad = Convert.ToDouble(dataGridView1.Rows[i].Cells[3].Value.ToString().Replace("mΩ", ""));
-                //            if (number > ad)
-                //            {
-                //                number = ad;
-                //            }
-                //        }
-                //    }
-                //}
-                //if (IsOkasfd)
-                //{
-                //    Random ran = new Random();
-                //    double n = NextDouble(ran, 0.3, number);
-                //    dataGridView1.Rows[asdf].Cells[5].Value = "合格";
-                //    dataGridView1.Rows[asdf].Cells[3].Value = n.ToString("0.0") + "mΩ";
-                //    dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Lime;
-
-                //    Progressdisplay(250, asdf);
-                //}
             Invoke(new EventHandler(delegate
             {
 
                 TestEnd();
             }));
-
-            }
         }
         public double NextDouble(Random ran, double minValue, double maxValue)
         {
@@ -1947,7 +1917,7 @@ namespace SafetyTesting.Control
             {
 
                 label_Message.Text = data;
-                label_Message.BackColor = Color.Navy;
+                label_Message.ForeColor = Color.White;
                 if (data == "读取故障码")
                 {
                    
@@ -1960,7 +1930,7 @@ namespace SafetyTesting.Control
                     textBox_vin.Enabled = true;
                     button1.Enabled = true;
                     label_Message.Text = "错误响应,请重新扫码检测";
-                    label_Message.BackColor = Color.Red;
+                    label_Message.ForeColor = Color.Red;
                     label_Message.Refresh();
 
                     //ErrCount++;
@@ -2021,7 +1991,7 @@ namespace SafetyTesting.Control
                     if (!IsZCJY)
                     {
                         label_Message.Text = "通讯超时,请重新扫码检测";
-                        label_Message.BackColor = Color.Red;
+                        label_Message.ForeColor = Color.Red;
                         dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
                         dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
                         dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
@@ -2040,7 +2010,7 @@ namespace SafetyTesting.Control
                 else if (data.Contains("请求种子超时"))
                 {
                     label_Message.Text = "请求种子超时";
-                    label_Message.BackColor = Color.Red;
+                    label_Message.ForeColor = Color.Red;
 
 
                     dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
@@ -2067,10 +2037,10 @@ namespace SafetyTesting.Control
                     //发送检测
 
                     //Thread.Sleep(3000);
-                    Delay(3000);
+                    Delay(4000);
 
                     Progressdisplay(170, RowIndex);
-
+                    Iszcjy = false;
                     IsDengdianwei = false;
                     DBTestingConfig = safetyDataRepository.GetData<db_TestingConfig>().Where(x => x.SettingName == "BAT配置").FirstOrDefault();
                     string[] strs = DBTestingConfig.Value.Split(';');
@@ -2083,7 +2053,7 @@ namespace SafetyTesting.Control
                 }
                 else if (data.Contains("闭合快充继电器失败"))
                 {
-                    label_Message.BackColor = Color.Red;
+                    label_Message.ForeColor = Color.Red;
                     dataGridView1.Rows[RowIndex].Cells[5].Value = "不合格";
                     dataGridView1.Rows[RowIndex].Cells[3].Value = "0MΩ";
                     dataGridView1.Rows[RowIndex].Cells[3].Style.BackColor = Color.Red;
@@ -2495,7 +2465,7 @@ namespace SafetyTesting.Control
         public void ScenVIn(string carName="") 
         {
             label_Message.Text = "";
-            label_Message.BackColor = Color.Transparent;
+            label_Message.ForeColor = Color.Transparent;
             if (textBox_vin.Text.Length!=17)
             {
                 label_Message.Text = "VIN码不满足17位";
@@ -2861,7 +2831,7 @@ namespace SafetyTesting.Control
             textBox_vin.Text = "";
             textBox_carmodle.Text = "";
             label_Message.Text = "";
-            label_Message.BackColor = Color.Transparent;
+            label_Message.ForeColor = Color.Transparent;
             label_Message.Refresh();
             ucobd1.IsEndss = true;
             ucobd1.CloseCAN();
