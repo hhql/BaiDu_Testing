@@ -43,7 +43,22 @@ namespace TestApp
         }
         static void Main(string[] args)
         {
-            string asd = "123";
+            string[] strsss = "14,0.36Mohm,1".Split(',');
+            string result123 = string.Empty;
+            //RD 0,15,1,0.0s,,0.0mOhm
+            result123 = Regex.Replace(strsss[1], @"[^\d.\d]", "");
+
+            if (Convert.ToDouble(result123) == 0) 
+            {
+
+            }
+            else
+            {
+
+            }
+
+
+                string asd = "123";
             string asd2 = "4567";
             if (asd.Length==3 && asd2.Length==3)
             {

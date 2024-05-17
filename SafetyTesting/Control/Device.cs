@@ -78,10 +78,9 @@ namespace SafetyTesting.Control
         {
             try
             {
-                
 
                 GetIOmodule();
-                
+
                 panel1.Visible = true;
                 panel2.Visible = true;
 
@@ -99,7 +98,7 @@ namespace SafetyTesting.Control
                 {
                     tabControl1.Visible = false;
                 }
-               
+
 
                 timer1.Enabled = true;
                 timer2.Enabled = true;
@@ -692,42 +691,38 @@ namespace SafetyTesting.Control
         /// <param name="addressId">地址ID</param>
         public static void OutputDO(string val,bool Isopen,byte addressId = 0x01) 
         {
-            lock (obj)
+            if (val == "")
             {
 
-                if (val == "")
-                {
-
-                    return;
-                }
-                int v = Convert.ToInt32(val);
-                byte[] data = new byte[8];
-
-                byte[] dataIO = new byte[] { 0x01, 0x05, 0x00, 0x00, 0xFF, 0x00 };
-                if (!Isopen)
-                {
-                    dataIO[4] = 0x00;
-                }
-                dataIO[0] = addressId;
-
-                dataIO[3] = (byte)v;
-                byte[] crc = ToModbusCRC(dataIO);
-                data[0] = dataIO[0];
-                data[1] = dataIO[1];
-                data[2] = dataIO[2];
-                data[3] = dataIO[3];
-                data[4] = dataIO[4];
-                data[5] = dataIO[5];
-                data[6] = crc[0];
-                data[7] = crc[1];
-                //StringBuilder stringBuilder = new StringBuilder();
-                //foreach (var item in data)
-                //{
-                //    stringBuilder.Append(Convert.ToString(item, 16));
-                //}
-                //LogHelper.Info("发送IO：" + stringBuilder);
-                serialPortTest.Write(data, 0, data.Length);
+                return;
             }
+            int v = Convert.ToInt32(val);
+            byte[] data = new byte[8];
+
+            byte[] dataIO = new byte[] { 0x01, 0x05, 0x00, 0x00, 0xFF, 0x00 };
+            if (!Isopen)
+            {
+                dataIO[4] = 0x00;
+            }
+            dataIO[0] = addressId;
+
+            dataIO[3] = (byte)v;
+            byte[] crc = ToModbusCRC(dataIO);
+            data[0] = dataIO[0];
+            data[1] = dataIO[1];
+            data[2] = dataIO[2];
+            data[3] = dataIO[3];
+            data[4] = dataIO[4];
+            data[5] = dataIO[5];
+            data[6] = crc[0];
+            data[7] = crc[1];
+            //StringBuilder stringBuilder = new StringBuilder();
+            //foreach (var item in data)
+            //{
+            //    stringBuilder.Append(Convert.ToString(item, 16));
+            //}
+           // LogHelper.Info("发送IO：" + stringBuilder);
+            serialPortTest.Write(data, 0, data.Length);
 
 
         }
@@ -974,7 +969,7 @@ namespace SafetyTesting.Control
                 if (!asdf)
                 {
 
-                    LogHelper.Info("IO连接断开");
+                   // LogHelper.Info("IO连接断开");
                     BroadCast.SendBroadCast("IO_exit");
                 }
                 else

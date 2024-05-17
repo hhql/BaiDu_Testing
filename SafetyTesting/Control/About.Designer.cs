@@ -52,7 +52,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(376, 180);
             this.label1.TabIndex = 1;
-            this.label1.Text = "TEFIKE All Rights Reserved\r\nV2.2.4\r\nwww.TEFIK.com\r\n（+86）18001860616\r\ninfo@TEFIKE." +
+            this.label1.Text = "TEFIKE All Rights Reserved\r\nV2.2.5\r\nwww.TEFIK.com\r\n（+86）18001860616\r\ninfo@TEFIKE." +
     "com";
             // 
             // About

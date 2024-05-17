@@ -245,12 +245,17 @@ namespace SafetyTesting.Control
             {
                 string[] datas = db_Testing.Value.Split(",");
                 comboBox_CurrentStation.Text = datas[0];
-                CurrentStation= datas[0];
+                
                 //if (comboBox_CurrentStation.Text != "充电检测") 
                 //{
 
                 //}
-                checkBox_IsIO.Checked = bool.Parse(datas[1]);
+                if (datas.Count()>1)
+                {
+                    CurrentStation = datas[0];
+                    checkBox_IsIO.Checked = bool.Parse(datas[1]);
+                }
+                
             }
 
 

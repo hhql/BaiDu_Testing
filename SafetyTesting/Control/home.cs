@@ -207,7 +207,7 @@ namespace SafetyTesting.Control
 
         private void home_Load(object sender, EventArgs e)
         {
-
+            
             //dataGridView1.DefaultCellStyle = new DataGridViewCellStyle() { ForeColor = Color.Blue, Font = new Font("Arial", 11F, FontStyle.Bold) };
 
 
@@ -522,7 +522,7 @@ namespace SafetyTesting.Control
                         else if (AnkuiData.Contains("GWINSTEK")) //长城的安规
                         {
                             CONNCOMM = true;
-                            LogHelper.warning("CONNCOMM：" + CONNCOMM);
+                            //LogHelper.warning("CONNCOMM：" + CONNCOMM);
                             Invoke(new EventHandler(delegate
                             {
                                 roundButton_anConn.ButtonCenterColorStart = Color.Lime;
@@ -543,6 +543,7 @@ namespace SafetyTesting.Control
                     }
                     //内饰TL-12
                     //内饰二层
+
                     LogHelper.Info("安规回复数据：" + AnkuiData);
                     if (Global.IsStop)
                     {
@@ -648,6 +649,18 @@ namespace SafetyTesting.Control
             }
             else if (db_Car.TestName.Contains("整车绝缘"))
             {
+                Task.Run(() =>
+                {
+                    Thread.Sleep(200);
+                    Device.OutputDO(redLightDo, false);
+                    Thread.Sleep(100);
+                    Device.OutputDO(redLightDo, false);
+
+                    Thread.Sleep(200);
+                    Device.OutputDO(GreenLightDo, false);
+                    Thread.Sleep(100);
+                    Device.OutputDO(GreenLightDo, false);
+                });
                 ErrCount = 0;
                 Progressdisplay(100, RowIndex);
                 //打开快充正继电器
@@ -669,7 +682,7 @@ namespace SafetyTesting.Control
                     carModuleType = CarModuleType.GSE;
                 }
 
-                ucobd1.InitializeCAN(CANInfoAction, 0, carModuleType);//添加到委托
+                ucobd1.InitializeCAN(CANInfoAction, 0, carModuleType,textBox_vin.Text);//添加到委托
                 ucobd1.StartCAN(EFunctionType.Insulation_CLOSE,carModuleType);
             }
             else if (db_Car.TestName.Contains("绝缘"))
@@ -767,7 +780,7 @@ namespace SafetyTesting.Control
                 {
                     return;
                 }
-                LogHelper.Info("安规回复数据：" + data);
+                //LogHelper.Info("安规回复数据：" + data);
                 //  LogHelper.Info("当前RowIndex" + RowIndex);
 
 
@@ -853,24 +866,24 @@ namespace SafetyTesting.Control
                 LogHelper.Info("返回检测结果：" + data);
                 string str = string.Empty;
                 db_CarModule db_Car = DBCarModules.Where(x => x.TestName == dataGridView1.Rows[RowIndex].Cells[1].Value.ToString()).FirstOrDefault();
-                
 
 
+                //14,14.6Mohm,1
 
 
-                 if (db_Car.TestName.Contains("整车绝缘"))
+                if (db_Car.TestName.Contains("整车绝缘"))
                 {
                     string result123 = string.Empty;
                     //RD 0,15,1,0.0s,,0.0mOhm
                     result123 = Regex.Replace(strs[1], @"[^\d.\d]", "");
-                    if (Convert.ToInt32(result123) == 0) 
+                    if (Convert.ToDouble(result123) == 0) 
                     {
                         //错误
 
                         if (!Iszcjy)
                         {
                             Iszcjy = true;
-                            if (Convert.ToInt32(result123) == 0)
+                            if (Convert.ToDouble(result123) == 0)
                             {
                                 Delay(3000);
 
@@ -1016,12 +1029,40 @@ namespace SafetyTesting.Control
                     IsZCJY = true;
                 }
 
+
+
                 if (dataGridView1.Rows[RowIndex].Cells[5].Value == "不合格")
                 {
-                   // Thread.Sleep(50);
-                   // Device.OutputDO(lmlDO, true);
+                    // Thread.Sleep(50);
+                    // Device.OutputDO(lmlDO, true);
+                    if (!db_Car.TestName.Contains("绝缘")) 
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, true);
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, true);
 
-                   
+                            LogHelper.Info("AN1622H触发探笔红灯亮");
+                        });
+                    }
+                    else
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, false);
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, false);
+
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, false);
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, false);
+                        });
+                    }
+                        
 
                     //重测
                     if (TestingNG<2)
@@ -1034,15 +1075,15 @@ namespace SafetyTesting.Control
                         {
                             //AN1622HQuickMode();
 
-                            Task.Run(() =>
-                            {
-                                Thread.Sleep(50);
-                                Device.OutputDO(redLightDo, true);
-                                Thread.Sleep(50);
-                                Device.OutputDO(redLightDo, true);
+                            //Task.Run(() =>
+                            //{
+                            //    Thread.Sleep(50);
+                            //    Device.OutputDO(redLightDo, true);
+                            //    Thread.Sleep(50);
+                            //    Device.OutputDO(redLightDo, true);
 
-                                LogHelper.Info("触发探笔红灯亮");
-                            });
+                            //    LogHelper.Info("触发探笔红灯亮");
+                            //});
 
                             Task.Run(() =>
                             {
@@ -1068,7 +1109,38 @@ namespace SafetyTesting.Control
                 {
                     IsOk = true;
                     TestingNG = 1;
+
+
+                    if (!db_Car.TestName.Contains("绝缘"))
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, true);
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, true);
+                            LogHelper.Info("AN1622H触发探笔绿灯亮");
+                        });
+                    }
+                    else
+                    {
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, false);
+                            Thread.Sleep(100);
+                            Device.OutputDO(redLightDo, false);
+
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, false);
+                            Thread.Sleep(100);
+                            Device.OutputDO(GreenLightDo, false);
+                        });
+                    }
+
                 }
+
+                
 
                 TestEnd();
 
@@ -1096,6 +1168,7 @@ namespace SafetyTesting.Control
             try
             {
 
+                
 
                 RowIndex++;
                 LogHelper.Info("检测完成" + dataGridView1.Rows.Count + "," + RowIndex);
@@ -1136,7 +1209,7 @@ namespace SafetyTesting.Control
                 
                 IsENDTest = false;
 
-
+                
 
                 if (db_Car.TestName.Contains("绝缘") || db_Car.TestName.Contains("直流口") || db_Car.TestName.Contains("交流口") || db_Car.TestName.Contains("直流充电口") || db_Car.TestName.Contains("交流充电口"))//
                 {
@@ -1228,30 +1301,7 @@ namespace SafetyTesting.Control
 
                     mesageeData = $"请进行{db_Car.TestName}检测";
 
-                    //探笔灯亮
-                    if (IsOk)
-                    {
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(30);
-                            Device.OutputDO(GreenLightDo, true);
-                            Thread.Sleep(50);
-                            Device.OutputDO(GreenLightDo, true);
-                            LogHelper.Info("触发探笔绿灯亮");
-                        });
-                    }
-                    else
-                    {
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(30);
-                            Device.OutputDO(redLightDo, true);
-                            Thread.Sleep(50);
-                            Device.OutputDO(redLightDo, true);
-
-                            LogHelper.Info("触发探笔红灯亮");
-                        });
-                    }
+                    
                 }
                 LogHelper.Info(mesageeData);
 
@@ -1357,7 +1407,14 @@ namespace SafetyTesting.Control
                 IsOk = false;
                 Progressdisplay(250, asdf);
                 IsOkasfd = false;
-
+                Task.Run(() =>
+                {
+                    Thread.Sleep(30);
+                    Device.OutputDO(redLightDo, true);
+                    Thread.Sleep(100);
+                    Device.OutputDO(redLightDo, true);
+                    LogHelper.Info("AN1622H触发探笔绿灯亮");
+                });
             }
             else
             {
@@ -1368,9 +1425,20 @@ namespace SafetyTesting.Control
                 dataGridView1.Rows[asdf].Cells[3].Style.BackColor = Color.Lime;
                 IsOk = true;
                 Progressdisplay(250, asdf);
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(30);
+                    Device.OutputDO(GreenLightDo, true);
+                    Thread.Sleep(50);
+                    Device.OutputDO(GreenLightDo, true);
+                    LogHelper.Info("AN1622H触发探笔绿灯亮");
+                });
             }
 
-           
+
+
+            
 
 
             Invoke(new EventHandler(delegate
@@ -1584,6 +1652,10 @@ namespace SafetyTesting.Control
 
                         Device.OutputDO(lmlDO, true);
                         Thread.Sleep(2000);
+                        Device.OutputDO(lmlDO, false);
+                        Thread.Sleep(80);
+                        Device.OutputDO(lmlDO, false);
+                        Thread.Sleep(80);
                         Device.OutputDO(lmlDO, false);
                     });
                 }
@@ -2248,12 +2320,14 @@ namespace SafetyTesting.Control
 
                         Thread.Sleep(50);
                         Device.OutputDO(GreenLightDo, false);
-                        Thread.Sleep(50);
+                        Thread.Sleep(100);
                         Device.OutputDO(GreenLightDo, false);
-                        Thread.Sleep(50);
+                        Thread.Sleep(100);
                         Device.OutputDO(redLightDo, false);
-                        Thread.Sleep(50);
+                        Thread.Sleep(100);
                         Device.OutputDO(redLightDo, false);
+
+                        LogHelper.Info("触笔灯灭");
                     });
                    
 
@@ -2478,6 +2552,11 @@ namespace SafetyTesting.Control
                 label_Message.ForeColor = Color.Red;
               //  return;
             }
+            
+
+
+            label_Message.Text = "";
+
             Task.Run(() =>
             {
                 Device.OutputDO(GreenDo, false);
@@ -2494,13 +2573,22 @@ namespace SafetyTesting.Control
                 Thread.Sleep(50);
                 Device.OutputDO(redDo, false);
                 Thread.Sleep(50);
+
+                Device.OutputDO(lmlDO, false);
+                Thread.Sleep(50);
+                Device.OutputDO(lmlDO, false);
+                Thread.Sleep(50);
+
+
                 Device.OutputDO(redLightDo, false);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 Device.OutputDO(redLightDo, false);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 Device.OutputDO(GreenLightDo, false);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 Device.OutputDO(GreenLightDo, false);
+
+                LogHelper.Info("触笔灯灭");
             });
 
 
@@ -2935,6 +3023,14 @@ namespace SafetyTesting.Control
         private void textBox_vin_TextChanged(object sender, EventArgs e)
         {
            
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            LogHelper.CANInfo("VINLPODFSF54564D", "第一个");
+            LogHelper.Info("第一个");
+            LogHelper.Error("错误");
+            LogHelper.warning("第一个");
         }
     }
     public static class UserInfo 

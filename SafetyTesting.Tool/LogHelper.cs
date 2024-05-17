@@ -1,5 +1,8 @@
 ﻿using log4net;
+using log4net.Config;
 using System;
+using System.IO;
+using System.Linq;
 
 namespace SafetyTesting.Tool
 {
@@ -8,36 +11,36 @@ namespace SafetyTesting.Tool
         public static string logpath = string.Empty;
         public static void Info(string message) 
         {
-            ILog log = LogManager.GetLogger("Info");
-            if (log.IsInfoEnabled)
-            {
-                log.Info(message);
-            }
+            NLog.Logger _loggerin = NLog.LogManager.GetLogger("Info");
+            _loggerin.Info(message);
+
+            //ILog log = LogManager.GetLogger("Info");
+            //if (log.IsInfoEnabled)
+            //{
+            //    log.Info(message);
+            //}
         }
-        public static void CANInfo(string message)
+        public static void CANInfo(string vin,string message)
         {
-            ILog log = LogManager.GetLogger("CANInfo");
-            if (log.IsInfoEnabled)
-            {
-                log.Info(message);
-            }
+
+            NLog.Logger _loggercaninfo = NLog.LogManager.GetLogger(vin);
+            _loggercaninfo.Trace(message);
+
+
         }
         public static void warning(string message)
         {
-            ILog log = LogManager.GetLogger("Warning");
-            if (log.IsWarnEnabled)
-            {
-                log.Warn(message);
-            }
+
+            NLog.Logger _loggerwarn = NLog.LogManager.GetLogger("warning");
+            _loggerwarn.Warn(message);
+
+           
         }
 
         public static void Error(string message)
         {
-            ILog log = LogManager.GetLogger("Error");
-            if (log.IsErrorEnabled)
-            {
-                log.Error(message);
-            }
+            NLog.Logger _loggererro = NLog.LogManager.GetLogger("Error");
+            _loggererro.Error(message);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace SafetyTesting.Control
         EFunctionType status = EFunctionType.FaultCode;//0 故障，1：充电
         public string message;
         CarModuleType type1 = CarModuleType.D180;
-        private int eCUTimeout = 3;
+        private int eCUTimeout = 5;
         string RevertID = "7E8";
         string SendID = "7E0";
 
@@ -196,18 +196,19 @@ namespace SafetyTesting.Control
         }
 
 
-
+        string vin = "";
         //Open CAN
         /// <summary>
         /// Open CAN
         /// </summary>
         /// <param name="resultAction"></param>
         /// <param name="deviceindex">设备编号</param>
-        public void InitializeCAN(Action<string, int> resultAction,uint deviceindex, CarModuleType carModuleType)
+        public void InitializeCAN(Action<string, int> resultAction,uint deviceindex, CarModuleType carModuleType,string _vin)
         {
+            timeOutCount = 0;
             type1 = carModuleType;
-
-            
+            vin = _vin;
+            LogHelper.CANInfo(_vin,"*****************************" + _vin+"*******************************");
             learningResultAction = resultAction;
             device_type_index_ = 10;
             channel_index_ = 0;
@@ -331,7 +332,7 @@ namespace SafetyTesting.Control
                 return;
             }
 
-            if (!setResistanceEnable(true))//使能
+            if (!setResistanceEnable(false))//使能
             {
                 roundButton_CANConn.ButtonCenterColorStart = Color.Red;
                 roundButton_CANConn.Refresh();
@@ -413,13 +414,15 @@ namespace SafetyTesting.Control
             {
                 if (type1==CarModuleType.RT6)
                 {
-                    SendCommand("02 3E 00 00 00 00 00 00", "720");
+                    SendCommand("02 3E 80 00 00 00 00 00", "720");
                     Thread.Sleep(20);
-                    SendCommand("02 3E 00 00 00 00 00 00", "791");
+                    SendCommand("02 3E 80 00 00 00 00 00", "791");
+                    LogHelper.warning("发送数据 帧ID<791> 02 3E 80 00 00 00 00 00");
                 }
                 else
                 {
-                    SendCommand("02 3E 00 00 00 00 00 00", "7DF");
+                    SendCommand("02 3E 80 00 00 00 00 00", "7DF");
+                    LogHelper.warning("发送数据 帧ID<7DF> 02 3E 80 00 00 00 00 00");
                 }
                 
 
@@ -428,7 +431,7 @@ namespace SafetyTesting.Control
             }
             catch (Exception ex)
             {
-                LogHelper.CANInfo(ex.ToString());
+                LogHelper.CANInfo(vin,ex.ToString());
             }
         }
 
@@ -484,6 +487,10 @@ namespace SafetyTesting.Control
 
             OBDWatchingTimer.Enabled = true;
         }
+
+        bool IsSendOK = false;
+        int sendNum = 0;
+
         /// <summary>
         /// 发送命令
         /// </summary>
@@ -491,8 +498,8 @@ namespace SafetyTesting.Control
         /// <param name="sendframe">0：CAN  1：CANFD</param>
         public void SendCommand(string strData, string SendId)
         {
-            
 
+            
             uint id = (uint)System.Convert.ToInt32(SendId, 16);
             string data = strData;
             int frame_type_index = 0;
@@ -506,8 +513,10 @@ namespace SafetyTesting.Control
             int send_type_index =0;//0 正常发送  1：
             int canfd_exp_index = 0;
             uint result; //发送的帧数
-
+            
             Thread.Sleep(50);//收到响应等待50ms 发送
+            
+            
             if (0 == protocol_index) //can
             {
 
@@ -538,22 +547,73 @@ namespace SafetyTesting.Control
 
             if (SendId != "7DF")
             {
-                if (strData.Contains("02 3E 00"))
+                if (strData.Contains("02 3E 80"))
                 {
-
+                    LogHelper.warning($"接收数据 帧ID<{SendId}-> 02 3E 80 00 00 00 00 00");
                 }
                 else
                 {
                     
-                    LogHelper.CANInfo($"Data CAN  Send(ID = {SendId})->" + strData);
+                    LogHelper.CANInfo(vin,$"Data CAN  Send(ID = {SendId})->" + strData);
                     ProcessTimeOutTimer.Enabled = true;
+
+
+                    if (strData.Contains(SEND_BAT_DATA_OPEN) || strData.Contains("05 31 01 A2 01 03 00 00") 
+                        || strData.Contains(SEND_BAT_DATA_CLOSE) || strData.Contains("04 31 A2 01 01 55 55 55") 
+                        || strData.Contains(SEND_IRM_DATA_CLOSE) || strData.Contains("04 2F 10 03 00 00 00 00")
+                        || strData.Contains(SEND_IRM_DATA_OPEN) || strData.Contains("05 2F D0 10 03 01 AA AA")
+                        || strData.Contains("04 31 01 51 02 55 55 55") || strData.Contains("05 31 01 A2 01 00 00 00")
+                        || strData.Contains("05 2F D0 10 03 00 AA AA") || strData.Contains("04 31 02 51 02 55 55 55"))
+                    {
+                        IsSendOK = false;
+                        string strds = strData;
+                        string ddf = SendId;
+                        sendNum++;
+                        LogHelper.CANInfo(vin,"发送次数：" + sendNum);
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(300);
+                            if (!IsSendOK)
+                            {
+                                Delay(2000);
+                                if (!IsSendOK)//等待2s判断是否有回复发送成功
+                                {
+                                    if (sendNum == 1)
+                                    {
+                                        SendCommand(strds, ddf);
+                                    }
+                                    else
+                                    {
+                                        sendNum = 0;
+                                    }
+
+                                }
+                                else
+                                {
+                                    sendNum = 0;
+                                }
+                            }
+                            else
+                            {
+                                sendNum = 0;
+                            }
+
+                            
+                            
+                        });
+                    }
+                    
                 }
 
+            }
+            else
+            {
+                LogHelper.warning("接收数据 帧ID<7DF-> 02 3E 80 00 00 00 00 00");
             }
 
             if (result != 1)
             {
-                LogHelper.CANInfo("发送数据失败： "+ strData);
+                LogHelper.CANInfo(vin,"发送数据失败： " + strData);
 
 
             }
@@ -582,7 +642,7 @@ namespace SafetyTesting.Control
             ProcessTimeOutTimer.Enabled = false;
 
             Method.ZCAN_CloseDevice(device_handle_);
-            LogHelper.CANInfo("关闭CAN");
+            LogHelper.CANInfo(vin,"关闭CAN");
             //if (m_connect == 1)
             //{
             //    LogHelper.CANInfo("关闭CAN");
@@ -610,7 +670,7 @@ namespace SafetyTesting.Control
                     return;
                 }
                 message = $"Data CAN  received(ID={ GetId(id).ToString("X2")}) ->" + text;
-                LogHelper.CANInfo(message);
+                LogHelper.CANInfo(vin,message);
                 ProcessTimeOutTimer.Enabled = false;
                 ParseReceived(text);
 
@@ -644,7 +704,7 @@ namespace SafetyTesting.Control
                 message = $"Data CANFD  received(ID={ GetId(id).ToString("X2")}) ->" + text;
 
                 ProcessTimeOutTimer.Enabled = false;
-                LogHelper.CANInfo(message);
+                LogHelper.CANInfo(vin,message);
 
                 ParseReceived(text);
 
@@ -685,9 +745,9 @@ namespace SafetyTesting.Control
 
             if (strData.Contains(ENTER_EXTENDED_ACK))//06 50 03 00 00 00 00 00
             {
-               
-                // OBDWatchingTimer.Enabled = false;
 
+                // OBDWatchingTimer.Enabled = false;
+                
                 message = "进入扩展会话...";
 
                 //1, Request seed
@@ -717,8 +777,7 @@ namespace SafetyTesting.Control
             }
             else if (strData.Contains(REQUEST_SEED_ACK))//06 67 01 XX XX XX XX 00
             {
-               
-                IsSendkey = true;
+                 IsSendkey = true;
                 message = "请求种子";
 
                 //5B 1E CE 35
@@ -754,6 +813,7 @@ namespace SafetyTesting.Control
             }
             else if (strData.Contains(SEND_KEY_ACK))//02 67 02 00 00 00 00 00
             {
+                
                 string str = "";
                 if (status == EFunctionType.FaultCode)
                 {
@@ -851,15 +911,16 @@ namespace SafetyTesting.Control
                 IsOKOK = true;
 
             }
-
             else if (strData.Contains(SEND_FaultCode_OKACK))//  5902
             {
+                IsSendOK = true;
                 message = "有故障码";
                 learningResultAction(message, 100);
                 CloseCAN();
             }
             else if (strData.Contains(SEND_FaultCode_NGACK))//7F19
             {
+                IsSendOK = true;
                 message = "没有故障码";
                 learningResultAction(message, 100);
                 CloseCAN();
@@ -867,7 +928,7 @@ namespace SafetyTesting.Control
             else if (strData.Contains("71 01 51 02 00"))
             {
                 //快充接触器闭合失败
-
+                IsSendOK = true;
                 Thread.Sleep(1000);
                 SendCount++;
                 if (SendCount<5)
@@ -878,12 +939,11 @@ namespace SafetyTesting.Control
                
 
             }
-
             else if (strData.Contains("71 01 A2 01 00") || strData.Contains("71 01 51 00 00"))
             {
-                
-                   //RT6 关闭绝缘成功  接着闭合快充继电器
-                   Isvcu = true;
+                IsSendOK = true;
+                //RT6 关闭绝缘成功  接着闭合快充继电器
+                Isvcu = true;
                 if (status == EFunctionType.Insulation__OPEN)
                 {
                     //继续发送开绝缘
@@ -924,6 +984,7 @@ namespace SafetyTesting.Control
             }//关闭绝缘成功  接着闭合快充继电器
             else if (strData.Contains("6F D0 10 03 01") || strData.Contains("71 01 51 02 01"))//01：整车端继电器闭合成功；00：整车端继电器闭合失败
             {
+                IsSendOK = true;
                 if (type1 != CarModuleType.RT6) 
                 {
                     //RT6 快充接触器闭合成功
@@ -935,12 +996,14 @@ namespace SafetyTesting.Control
             }//快充接触器闭合成功
             else if (strData.Contains("71 01 51 03 00"))
             {
+                IsSendOK = true;
                 IsBHOK = true;
                 message = "闭合快充继电器失败";
                 learningResultAction(message, 80);
             }//快充接触器闭合失败
             else if (strData.Contains("6F D0 10 03 00") || strData.Contains("71 02 51 02 00"))
             {
+                IsSendOK = true;
                 message = "完成断开快充继电器";
                 learningResultAction(message, 80);
 
@@ -992,6 +1055,9 @@ namespace SafetyTesting.Control
                 }
                 else
                 {
+
+                    IsSendOK = true;
+
                     Isvcu = false;
                     status = EFunctionType.Insulation__OPEN;
                     string str = "05 31 01 A2 01 00 00 00";
@@ -1005,7 +1071,7 @@ namespace SafetyTesting.Control
             else if (strData.Contains("03 7F 27 78"))
             {
                 //请求种子等待3s 3s没有请求到继续请求种子
-
+                
                 XHCount++;
                 if (XHCount>3)
                 {
@@ -1051,9 +1117,6 @@ namespace SafetyTesting.Control
                 });
 
             }
-
-
-
 
         }
 
@@ -1318,7 +1381,7 @@ namespace SafetyTesting.Control
             }
             catch (Exception ex)
             {
-                LogHelper.CANInfo(ex.ToString());
+                LogHelper.CANInfo(vin,ex.ToString());
             }
 
         }

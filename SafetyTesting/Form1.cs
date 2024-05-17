@@ -71,7 +71,7 @@ namespace SafetyTesting
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            ucobd1.InitializeCAN(CANInfoAction,0,CarModuleType.D180);//添加到委托
+            //ucobd1.InitializeCAN(CANInfoAction,0,CarModuleType.D180);//添加到委托
         }
     }
 }
